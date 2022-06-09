@@ -1,0 +1,9 @@
+.overflow-x-hidden {
+  overflow-x: hidden;
+}
+.overflow-y-scroll {
+  overflow-y: scroll;
+}
+.vh-45 {
+  height: 45vh;
+}
