@@ -5,11 +5,32 @@ import InputGroup from 'react-bootstrap/InputGroup';
 
 
 class SearchBar extends React.Component {
+  constructor(props) {
+    super(props);
+    this.handleSearch = this.handleSearch.bind(this);
+  }
+
+  handleSearch() {
+    this.props.onSearch(
+      document.getElementById('searchInput').value
+    )
+  }
+
   render() {
     return (
       <InputGroup size="lg">
-        <FormControl placeholder="Search for an address" aria-label="Large" aria-describedby="inputGroup-sizing-sm" />
-        <Button variant="dark">Search</Button>
+        <FormControl 
+          id="searchInput"
+          placeholder="Search for an address"
+          aria-label="Large"
+          aria-describedby="inputGroup-sizing-sm"
+        />
+        <Button
+          variant="dark"
+          onClick={this.handleSearch}
+        >
+          Search
+        </Button>
       </InputGroup>
     )
   }

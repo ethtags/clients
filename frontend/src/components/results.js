@@ -6,45 +6,39 @@ import Address from './address';
 import SuggestBar from './suggestbar';
 import Nametag from './nametag';
 import '../css/results.css';
+import mockResults from './mockresults.json';
 
 
 class Results extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      nametags: []
+    }
+  }
+
+  componentDidMount() {
+    this.setState({
+      nametags: mockResults
+    })
+  }
+
   render() {
-    return (
+    if (this.props.address === null) return null
+
+    else return (
       <Container>
-        <Address value="0xdf05Bc8769AF8D667564C175EBa248e131c97c4F" />
+        <Address value={this.props.address} />
         <Container className="vh-45 overflow-y-scroll overflow-x-hidden">
+        {this.state.nametags.map(nametag => (
           <Nametag
-            value="Address One" 
-            upvotes={250}
-            downvotes={9}
-            userVoteChoice={null}
-            createdByUser={false}
+            value={nametag.nametag} 
+            upvotes={nametag.votes.upvotes}
+            downvotes={nametag.votes.downvotes}
+            userVoteChoice={nametag.votes.userVoteChoice}
+            createdByUser={nametag.createdByUser}
           />
-
-          <Nametag
-            value="Address Two" 
-            upvotes={240}
-            downvotes={9}
-            userVoteChoice={true}
-            createdByUser={false}
-          />
-
-          <Nametag
-            value="Address Three" 
-            upvotes={230}
-            downvotes={9}
-            userVoteChoice={false}
-            createdByUser={false}
-          />
-
-          <Nametag
-            value="Address Four" 
-            upvotes={220}
-            downvotes={9}
-            userVoteChoice={true}
-            createdByUser={true}
-          />
+        ))}
         </Container>
 
         <Container className="mt-4">
