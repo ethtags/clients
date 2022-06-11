@@ -1,0 +1,11 @@
+.cus-btn-xs {
+  padding: 0.125rem 0.325rem !important;
+  font-size: 0.65rem !important;
+  border-radius: 0.25rem !important;
+}
+.cus-btn-success-hov:hover {
+  background-color: #157347 !important;
+}
+.cus-btn-danger-hov:hover {
+  background-color: #dc3545 !important;
+}

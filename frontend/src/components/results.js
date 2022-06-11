@@ -1,81 +1,50 @@
 import React from "react";
-import Button from 'react-bootstrap/Button';
 import Col from 'react-bootstrap/Col';
 import Container from 'react-bootstrap/Container';
 import Row from 'react-bootstrap/Row';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faChevronUp } from '@fortawesome/free-solid-svg-icons';
-import { faChevronDown } from '@fortawesome/free-solid-svg-icons';
 import Address from './address';
 import SuggestBar from './suggestbar';
-import './results.css';
+import Nametag from './nametag';
+import '../css/results.css';
 
 
 class Results extends React.Component {
   render() {
     return (
       <Container>
-        <Address />
+        <Address value="0xdf05Bc8769AF8D667564C175EBa248e131c97c4F" />
         <Container className="vh-45 overflow-y-scroll overflow-x-hidden">
-          <Row className="mb-3 p-2 border-start border-1 fs-8">
-            <Col xs={1} className="text-center">
-              <Button variant="light" size="sm">
-                <FontAwesomeIcon icon={faChevronUp} />
-              </Button>
-              <br />241<br />
-              <Button variant="light" size="sm">
-                <FontAwesomeIcon icon={faChevronDown} />
-              </Button>
-            </Col>
-            <Col xs={11} className="align-self-center">
-              <p className="mt-3">&nbsp;Address Label</p>
-            </Col>
-          </Row>
+          <Nametag
+            value="Address One" 
+            upvotes={250}
+            downvotes={9}
+            userVoteChoice={null}
+            createdByUser={false}
+          />
 
-          <Row className="mb-3 p-2 border-start border-1 fs-8">
-            <Col xs={1} className="text-center">
-              <Button variant="light" size="sm">
-                <FontAwesomeIcon icon={faChevronUp} />
-              </Button>
-              <br />121<br />
-              <Button variant="light" size="sm">
-                <FontAwesomeIcon icon={faChevronDown} />
-              </Button>
-            </Col>
-            <Col xs={11} className="align-self-center">
-              <p className="mt-3">&nbsp;Address Label 2</p>
-            </Col>
-          </Row>
-        
-          <Row className="mb-3 p-2 border-start border-1 fs-8">
-            <Col xs={1} className="text-center">
-              <Button variant="light" size="sm">
-                <FontAwesomeIcon icon={faChevronUp} />
-              </Button>
-              <br />121<br />
-              <Button variant="light" size="sm">
-                <FontAwesomeIcon icon={faChevronDown} />
-              </Button>
-            </Col>
-            <Col xs={11} className="align-self-center">
-              <p className="mt-3">&nbsp;Address Label 2</p>
-            </Col>
-          </Row>
+          <Nametag
+            value="Address Two" 
+            upvotes={240}
+            downvotes={9}
+            userVoteChoice={true}
+            createdByUser={false}
+          />
 
-          <Row className="mb-3 p-2 border-start border-1 fs-8">
-            <Col xs={1} className="text-center">
-              <Button variant="light" size="sm">
-                <FontAwesomeIcon icon={faChevronUp} />
-              </Button>
-              <br />121<br />
-              <Button variant="light" size="sm">
-                <FontAwesomeIcon icon={faChevronDown} />
-              </Button>
-            </Col>
-            <Col xs={11} className="align-self-center">
-              <p className="mt-3">&nbsp;Address Label 2</p>
-            </Col>
-          </Row>
+          <Nametag
+            value="Address Three" 
+            upvotes={230}
+            downvotes={9}
+            userVoteChoice={false}
+            createdByUser={false}
+          />
+
+          <Nametag
+            value="Address Four" 
+            upvotes={220}
+            downvotes={9}
+            userVoteChoice={true}
+            createdByUser={true}
+          />
         </Container>
 
         <Container className="mt-4">
