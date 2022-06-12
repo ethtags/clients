@@ -13,7 +13,7 @@ class SearchBar extends React.Component {
   handleSearch() {
     this.props.onSearch(
       document.getElementById('searchInput').value
-    )
+    );
   }
 
   render() {

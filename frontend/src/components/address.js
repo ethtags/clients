@@ -10,12 +10,6 @@ import '../css/address.css';
 
 
 class Address extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      value: props.value,
-    }
-  }
 
   render() {
     return (
@@ -23,7 +17,7 @@ class Address extends React.Component {
         <Row>
           <Col>
             <p className="header fs-4 fw-bold overflow-wrap-anywhere">
-              {this.state.value}
+              {this.props.value}
               <Button variant="light" className="ms-3">
                 <FontAwesomeIcon icon={faCopy} />
               </Button>
