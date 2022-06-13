@@ -32,6 +32,7 @@ class Results extends React.Component {
         <Container className="vh-45 overflow-y-scroll overflow-x-hidden">
         {this.state.nametags.map(nametag => (
           <Nametag
+            key={nametag.id}
             value={nametag.nametag} 
             upvotes={nametag.votes.upvotes}
             downvotes={nametag.votes.downvotes}
@@ -44,7 +45,7 @@ class Results extends React.Component {
         <Container className="mt-4">
           <Row className="justify-content-md-center">
             <Col xs={12} lg={6}>
-              <SuggestBar />
+              <SuggestBar address={this.props.address} />
             </Col>
           </Row>
         </Container>
