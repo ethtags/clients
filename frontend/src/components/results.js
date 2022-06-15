@@ -10,27 +10,28 @@ import mockResults from './mockresults.json';
 
 
 class Results extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      nametags: []
-    }
-  }
-
-  componentDidMount() {
-    this.setState({
-      nametags: mockResults
-    })
-  }
 
   render() {
-    if (this.props.address === null) return null
 
+    // show instructions if user hasn't searched
+    if (
+        (this.props.address === null || this.props.address === "") &&
+        (this.props.nametags.length === 0)
+    ) {
+      return (
+        <Container>
+          <h2 className="header mt-5">ETHTags powers your blockchain search experience.</h2>
+          <p className="header mt-3 fs-4">Nametags will appear here. Vote or suggest your own.</p>
+        </Container>
+      )
+    }
+
+    // show results if user has searched
     else return (
       <Container>
         <Address value={this.props.address} />
         <Container className="vh-45 overflow-y-scroll overflow-x-hidden">
-        {this.state.nametags.map(nametag => (
+        {this.props.nametags.map(nametag => (
           <Nametag
             key={nametag.id}
             value={nametag.nametag} 
