@@ -12,7 +12,7 @@ class SearchBar extends React.Component {
   }
 
   handleSearch() {
-    this.props.onSearch(
+    this.props.onSubmit(
       document.getElementById('searchInput').value
     );
   }
