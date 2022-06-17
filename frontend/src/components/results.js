@@ -30,11 +30,14 @@ class Results extends React.Component {
         {this.props.nametags.map(nametag => (
           <Nametag
             key={nametag.id}
+            id={nametag.id}
             value={nametag.nametag} 
             upvotes={nametag.votes.upvotes}
             downvotes={nametag.votes.downvotes}
+            userVoted={nametag.votes.userVoted}
             userVoteChoice={nametag.votes.userVoteChoice}
             createdByUser={nametag.createdByUser}
+            address={this.props.address}
           />
         ))}
         </Container>
