@@ -8,12 +8,20 @@ class SearchBar extends React.Component {
   constructor(props) {
     super(props);
     this.handleSearch = this.handleSearch.bind(this);
+    this.onKeyPress = this.onKeyPress.bind(this);
   }
 
   handleSearch() {
-    this.props.onSearch(
+    this.props.onSubmit(
       document.getElementById('searchInput').value
     );
+  }
+
+  onKeyPress(event) {
+    // search nametag on keyboard Enter
+    if (event.charCode === 13) {
+      this.handleSearch();
+    }
   }
 
   render() {
@@ -24,6 +32,7 @@ class SearchBar extends React.Component {
           placeholder="Search for an address"
           aria-label="Large"
           aria-describedby="inputGroup-sizing-sm"
+          onKeyPress={this.onKeyPress}
         />
         <Button
           variant="dark"
