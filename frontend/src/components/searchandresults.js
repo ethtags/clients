@@ -18,7 +18,7 @@ class SearchAndResults extends React.Component {
       suggestBarState: {
         error: null,
         loading: false
-      }
+      },
     }
 
     // bind functions
@@ -69,19 +69,11 @@ class SearchAndResults extends React.Component {
       });
   }
 
-  submitNametag(value) {
+  submitNametagRequest(nametagVal, recaptchaVal) {
     // prepare request
     var url = this.baseUrl + this.state.address + "/tags/";
-    const data = {"nametag": value};
+    const data = {"nametag": nametagVal, "recaptcha": recaptchaVal};
     
-    // set state to loading
-    this.setState({
-      suggestBarState: {
-        loading: true,
-        error: null
-      }
-    });
-
     // submit request
     fetch(url, {
       method: 'POST',
@@ -128,6 +120,27 @@ class SearchAndResults extends React.Component {
         });
       });
   }
+
+  submitNametag(value) {
+    // set state to loading
+    this.setState({
+      suggestBarState: {
+        loading: true,
+        error: null
+      }
+    });
+
+    // complete captcha challenge
+    window.grecaptcha.execute(
+      process.env.REACT_APP_RECAPTCHA_SITE_KEY,
+      {action: 'nametag'}
+    )
+    .then(token => {
+      // do request
+      this.submitNametagRequest(value, token);
+    });
+  }
+
 
   render() {
 

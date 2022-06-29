@@ -18,7 +18,8 @@ class Nametag extends React.Component {
       downvotes: props.downvotes,
       userVoted: props.userVoted,
       userVoteChoice: props.userVoteChoice,
-      createdByUser: props.createdByUser
+      createdByUser: props.createdByUser,
+      loading: false
     }
     this.baseUrl = process.env.REACT_APP_BACKEND_URL || "http://127.0.0.1:8000/";
 
@@ -58,10 +59,10 @@ class Nametag extends React.Component {
     else this.submitVote(false, true);
   }
 
-  submitVote(value, isUpdate) {
+  submitVoteRequest(voteVal, isUpdate, recaptchaVal) {
     // prepare request
     var url = `${this.baseUrl + this.props.address}/tags/${this.props.id}/votes/`;
-    const data = {"value": value};
+    const data = {"value": voteVal, "recaptcha": recaptchaVal};
 
     // submit request
     fetch(url, {
@@ -88,14 +89,32 @@ class Nametag extends React.Component {
           upvotes: res.upvotes,
           downvotes: res.downvotes,
           userVoteChoice: res.userVoteChoice,
-          userVoted: res.userVoted
+          userVoted: res.userVoted,
+          loading: false
         });
       })
       // show and log errors
       .catch(error => {
         console.error(error);
+        this.setState({loading: false});
       });
   }
+
+  submitVote(voteVal, isUpdate) {
+    // set loading to true
+    this.setState({loading: true});
+
+    // complete captcha challenge
+    window.grecaptcha.execute(
+      process.env.REACT_APP_RECAPTCHA_SITE_KEY,
+      {action: 'vote'}
+    )
+    .then(recaptchaVal => {
+      // do request
+      this.submitVoteRequest(voteVal, isUpdate, recaptchaVal);
+    });
+  }
+
 
   render() {
     return (
@@ -107,6 +126,7 @@ class Nametag extends React.Component {
               variant={this.state.userVoteChoice === true ?
                 "success" : "outline-dark"}
               onClick={this.doUpvote}
+              disabled={this.state.loading}
             >
               <FontAwesomeIcon icon={faChevronUp} />
             </Button>
@@ -118,6 +138,7 @@ class Nametag extends React.Component {
               variant={this.state.userVoteChoice === false ?
                 "danger" : "outline-dark"}
               onClick={this.doDownvote}
+              disabled={this.state.loading}
             >
               <FontAwesomeIcon icon={faChevronDown} />
             </Button>
