@@ -18,7 +18,8 @@ class Nametag extends React.Component {
       downvotes: props.downvotes,
       userVoted: props.userVoted,
       userVoteChoice: props.userVoteChoice,
-      createdByUser: props.createdByUser
+      createdByUser: props.createdByUser,
+      loading: false
     }
     this.baseUrl = process.env.REACT_APP_BACKEND_URL || "http://127.0.0.1:8000/";
 
@@ -59,6 +60,9 @@ class Nametag extends React.Component {
   }
 
   submitVote(value, isUpdate) {
+    // set loading
+    this.setState({loading: true});
+
     // prepare request
     var url = `${this.baseUrl + this.props.address}/tags/${this.props.id}/votes/`;
     const data = {"value": value};
@@ -78,6 +82,10 @@ class Nametag extends React.Component {
       })
       .then(res => {
         if (res instanceof Error) {
+          // set loading false
+          this.setState({loading: false});
+
+          // log error
           console.error(res.message);
           return null
         }
@@ -88,11 +96,16 @@ class Nametag extends React.Component {
           upvotes: res.upvotes,
           downvotes: res.downvotes,
           userVoteChoice: res.userVoteChoice,
-          userVoted: res.userVoted
+          userVoted: res.userVoted,
+          loading: false
         });
       })
       // show and log errors
       .catch(error => {
+        // set loading false
+        this.setState({loading: false});
+
+        // log error
         console.error(error);
       });
   }
@@ -107,6 +120,7 @@ class Nametag extends React.Component {
               variant={this.state.userVoteChoice === true ?
                 "success" : "outline-dark"}
               onClick={this.doUpvote}
+              disabled={this.state.loading}
             >
               <FontAwesomeIcon icon={faChevronUp} />
             </Button>
@@ -118,6 +132,7 @@ class Nametag extends React.Component {
               variant={this.state.userVoteChoice === false ?
                 "danger" : "outline-dark"}
               onClick={this.doDownvote}
+              disabled={this.state.loading}
             >
               <FontAwesomeIcon icon={faChevronDown} />
             </Button>
