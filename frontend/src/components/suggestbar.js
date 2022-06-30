@@ -31,7 +31,7 @@ class SuggestBar extends React.Component {
 
   render() {
 
-    if (this.props.address === null) return null
+    if (this.props.address === null || this.props.address === "") return null
     else {
     return (
       <>

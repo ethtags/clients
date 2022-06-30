@@ -16,8 +16,8 @@ class Results extends React.Component {
     ) {
       return (
         <Container>
-          <h2 className="header mt-5">ETHTags powers your blockchain search experience.</h2>
-          <p className="header mt-3 fs-4">Nametags will appear here. Vote or suggest your own.</p>
+          <p className="header mt-3 fs-4">Nametags will appear here.</p>
+          <p className="header mt-3 fs-4">Vote or suggest your own.</p>
         </Container>
       )
     }

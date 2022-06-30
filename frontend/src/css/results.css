@@ -7,3 +7,6 @@
 .vh-45 {
   height: 45vh;
 }
+p {
+  font-family: 'Courier New', monospace;
+}
