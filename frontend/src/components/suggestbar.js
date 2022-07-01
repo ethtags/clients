@@ -21,7 +21,10 @@ function SuggestBar(props) {
   }
 
   const render = () => {
-    if (props.address === null || props.address === "") return null
+    if (props.address === null ||
+        props.address === undefined ||
+        props.address === "")
+        return null
     else {
       return (
         <>

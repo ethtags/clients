@@ -7,9 +7,14 @@ import InputGroup from 'react-bootstrap/InputGroup';
 function SearchBar(props) {
 
   const handleSearch = () => {
-    props.onSubmit(
-      document.getElementById('searchInput').value
-    );
+    // get input
+    var value = document.getElementById('searchInput').value;
+
+    // return if empty
+    if (value === undefined || value === null || value === "") return;
+
+    // call function
+    props.onSubmit(value);
   }
 
   const onKeyPress = (event) => {

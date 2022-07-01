@@ -11,7 +11,10 @@ function Results(props) {
 
     // show instructions if user hasn't searched
     if (
-        (props.address === null || props.address === "") &&
+        (props.address === null ||
+         props.address === "" ||
+         props.address === undefined
+        ) &&
         (props.nametags.length === 0)
     ) {
       return (

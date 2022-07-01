@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useNavigate } from 'react-router-dom';
 import Button from 'react-bootstrap/Button';
 import Col from 'react-bootstrap/Col';
 import Container from 'react-bootstrap/Container';
@@ -21,6 +22,7 @@ function Nametag(props) {
 
   // constants
   const baseUrl = process.env.REACT_APP_BACKEND_URL || "http://127.0.0.1:8000/";
+  const navigate = useNavigate();
 
   // functions
   const doUpvote = () => {
@@ -90,6 +92,9 @@ function Nametag(props) {
         setUserVoteChoice(res.userVoteChoice);
         setUserVoted(res.userVoted);
         setLoading(false);
+
+        // refresh page to show most recent results
+        navigate(`/address/${props.address}`);
       })
       // show and log errors
       .catch(error => {

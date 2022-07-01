@@ -1,21 +1,51 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Col from 'react-bootstrap/Col';
 import Container from 'react-bootstrap/Container';
 import Row from 'react-bootstrap/Row';
 import Results from './results';
 import SearchBar from './searchbar';
 import SuggestBar from './suggestbar';
+import { useLocation, useParams, useNavigate } from "react-router-dom";
 
 
 function SearchAndResults(props) {
   // state
-  const [address, setAddress] = useState(null);
   const [nametags, setNametags] = useState([]);
   const [suggestBarError, setSuggestBarError] = useState(null);
   const [suggestBarLoading, setSuggestBarLoading] = useState(false);
 
   // constants
   const baseUrl = process.env.REACT_APP_BACKEND_URL || "http://127.0.0.1:8000/";
+  let { address } = useParams();
+  let navigate = useNavigate();
+  let routerLocation = useLocation();
+
+  // effects
+  useEffect(
+    () => {
+      // prepare request
+      var url = baseUrl + address + "/tags/";
+    
+      // submit request
+      fetch(url, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        credentials: 'include',
+      })
+        .then(res => res.json())
+        .then(res => {
+          // success state
+          setNametags(res);
+        })
+        // log errors
+        .catch(error => {
+          console.error(error);
+        });
+    },
+    [baseUrl, address, routerLocation.key]
+  );
 
   // functions
   const closeSuggestToast = () => {
@@ -23,30 +53,8 @@ function SearchAndResults(props) {
     setSuggestBarError(null);
   }
 
-  const lookupAddress = (address) => {
-    // set address state
-    setAddress(address);
-
-    // prepare request
-    var url = baseUrl + address + "/tags/";
-    
-    // submit request
-    fetch(url, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      credentials: 'include',
-    })
-      .then(res => res.json())
-      .then(res => {
-        // success state
-        setNametags(res);
-      })
-      // log errors
-      .catch(error => {
-        console.error(error);
-      });
+  const navigateNewAddress = (address) => {
+    navigate(`/address/${address}`);
   }
 
   const submitNametag = (value) => {
@@ -82,8 +90,8 @@ function SearchAndResults(props) {
         setSuggestBarLoading(false);
         setSuggestBarError(null);
 
-        // refresh nametags
-        lookupAddress(address);
+        // refresh the results list by reloading the page
+        navigateNewAddress(address);
       })
       // show and log errors
       .catch(error => {
@@ -99,7 +107,7 @@ function SearchAndResults(props) {
 
       {/*search*/}
       <Container className="p-3">
-        <SearchBar onSubmit={lookupAddress}></SearchBar>
+        <SearchBar onSubmit={navigateNewAddress}></SearchBar>
       </Container>
 
       {/*results*/}
