@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import Button from 'react-bootstrap/Button';
 import Col from 'react-bootstrap/Col';
 import Container from 'react-bootstrap/Container';
@@ -11,71 +11,57 @@ import { faArrowUpRightFromSquare } from '@fortawesome/free-solid-svg-icons';
 import '../css/address.css';
 
 
-class Address extends React.Component {
-  constructor(props) {
-    super(props);
+function Address(props) {
+  const [showCopyTooltip, setShowCopyTooltip] = useState(false);
+  const copyBtnRef = React.createRef();
 
-    // state
-    this.state = {
-      showCopyTooltip: false
-    }
-
-    // refs
-    this.copyBtnRef = React.createRef();
-
-    // bind functions
-    this.copyToClipboard = this.copyToClipboard.bind(this);
-  }
-
-  copyToClipboard() {
+  const copyToClipboard = (value) => {
     // do copy
-    navigator.clipboard.writeText(this.props.value);
+    navigator.clipboard.writeText(value);
 
     // show success tooltip then hide it
-    this.setState({showCopyTooltip: true});
+    setShowCopyTooltip(true);
     setTimeout(
-      () => this.setState({showCopyTooltip: false}),
+      () => setShowCopyTooltip(false),
       1000
     );
   }
 
-  render() {
-    return (
-      <Container>
-        <Row>
-          <Col>
-            <p className="header fs-4 fw-bold overflow-wrap-anywhere">
-              {this.props.value}
+  return (
+    <Container>
+      <Row>
+        <Col>
+          <p className="header fs-4 fw-bold overflow-wrap-anywhere">
+            {props.value}
 
-              {/* Copy button and tooltip */}
-              <Button
-                variant="light"
-                className="ms-3"
-                ref={this.copyBtnRef}
-                onClick={this.copyToClipboard}>
-                <FontAwesomeIcon icon={faCopy} />
-              </Button>
-              <Overlay target={this.copyBtnRef.current} show={this.state.showCopyTooltip} placement="top">
-                {(props) => (
-                  <Tooltip {...props}>
-                    Copied!
-                  </Tooltip>
-                )}
-              </Overlay>
+            {/* Copy button and tooltip */}
+            <Button
+              variant="light"
+              className="ms-3"
+              ref={copyBtnRef}
+              onClick={copyToClipboard}>
+              <FontAwesomeIcon icon={faCopy} />
+            </Button>
+            <Overlay target={copyBtnRef.current} show={showCopyTooltip} placement="top">
+              {(props) => (
+                <Tooltip {...props}>
+                  Copied!
+                </Tooltip>
+              )}
+            </Overlay>
 
-              {/* Open in etherscan button */}
-              <Button
-                variant="light"
-                className="ms-1"
-                onClick={() => {window.open(`https://etherscan.io/address/${this.props.value}`)}}>
-                <FontAwesomeIcon icon={faArrowUpRightFromSquare} />
-              </Button>
-            </p>
-          </Col>
-        </Row>
-      </Container>
-    )
-  }
+            {/* Open in etherscan button */}
+            <Button
+              variant="light"
+              className="ms-1"
+              onClick={() => {window.open(`https://etherscan.io/address/${props.value}`)}}>
+              <FontAwesomeIcon icon={faArrowUpRightFromSquare} />
+            </Button>
+          </p>
+        </Col>
+      </Row>
+    </Container>
+  )
 }
 
 

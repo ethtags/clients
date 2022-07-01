@@ -5,14 +5,14 @@ import Nametag from './nametag';
 import '../css/results.css';
 
 
-class Results extends React.Component {
+function Results(props) {
 
-  render() {
+  function render() {
 
     // show instructions if user hasn't searched
     if (
-        (this.props.address === null || this.props.address === "") &&
-        (this.props.nametags.length === 0)
+        (props.address === null || props.address === "") &&
+        (props.nametags.length === 0)
     ) {
       return (
         <Container>
@@ -25,9 +25,9 @@ class Results extends React.Component {
     // show results if user has searched
     else return (
       <Container>
-        <Address value={this.props.address} />
+        <Address value={props.address} />
         <Container className="vh-45 overflow-y-scroll overflow-x-hidden">
-        {this.props.nametags.map(nametag => (
+        {props.nametags.map(nametag => (
           <Nametag
             key={nametag.id}
             id={nametag.id}
@@ -37,13 +37,15 @@ class Results extends React.Component {
             userVoted={nametag.votes.userVoted}
             userVoteChoice={nametag.votes.userVoteChoice}
             createdByUser={nametag.createdByUser}
-            address={this.props.address}
+            address={props.address}
           />
         ))}
         </Container>
       </Container>
     )
   }
+
+  return render();
 }
 
 

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import Button from 'react-bootstrap/Button';
 import Col from 'react-bootstrap/Col';
 import Container from 'react-bootstrap/Container';
@@ -9,62 +9,55 @@ import { faChevronDown } from '@fortawesome/free-solid-svg-icons';
 import '../css/nametag.css';
 
 
-class Nametag extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      value: props.value,
-      upvotes: props.upvotes,
-      downvotes: props.downvotes,
-      userVoted: props.userVoted,
-      userVoteChoice: props.userVoteChoice,
-      createdByUser: props.createdByUser,
-      loading: false
-    }
-    this.baseUrl = process.env.REACT_APP_BACKEND_URL || "http://127.0.0.1:8000/";
+function Nametag(props) {
+  // state
+  const [value] = useState(props.value);
+  const [upvotes, setUpvotes] = useState(props.upvotes);
+  const [downvotes, setDownvotes] = useState(props.downvotes);
+  const [userVoted, setUserVoted] = useState(props.userVoted);
+  const [userVoteChoice, setUserVoteChoice] = useState(props.userVoteChoice);
+  const [createdByUser] = useState(props.createdByUser);
+  const [loading, setLoading] = useState(false);
 
-    // bind functions
-    this.doUpvote = this.doUpvote.bind(this);
-    this.doDownvote = this.doDownvote.bind(this);
-  }
+  // constants
+  const baseUrl = process.env.REACT_APP_BACKEND_URL || "http://127.0.0.1:8000/";
 
-  doUpvote() {
+  // functions
+  const doUpvote = () => {
     // user is undoing their upvote
-    if (this.state.userVoteChoice === true) {
-      this.submitVote(null, true);
+    if (userVoteChoice === true) {
+      submitVote(null, true);
       return
     }
 
     // post a new vote if user hasnt voted before
-    if (this.state.userVoted === false)
-      this.submitVote(true, false);
+    if (userVoted === false) submitVote(true, false);
 
     // update vote if user has voted before
-    else this.submitVote(true, true);
+    else submitVote(true, true);
   }
 
-  doDownvote() {
+  const doDownvote = () => {
     // user is undoing their downvote
-    if (this.state.userVoteChoice === false) {
+    if (userVoteChoice === false) {
       // update vote to no vote
-      this.submitVote(null, true);
+      submitVote(null, true);
       return
     }
 
     // post a new vote if user hasnt voted before
-    if (this.state.userVoted === false)
-      this.submitVote(false, false);
+    if (userVoted === false) submitVote(false, false);
 
     // update vote if user has voted before
-    else this.submitVote(false, true);
+    else submitVote(false, true);
   }
 
-  submitVote(value, isUpdate) {
+  const submitVote = (value, isUpdate) => {
     // set loading
-    this.setState({loading: true});
+    setLoading(true);
 
     // prepare request
-    var url = `${this.baseUrl + this.props.address}/tags/${this.props.id}/votes/`;
+    var url = `${baseUrl + props.address}/tags/${props.id}/votes/`;
     const data = {"value": value};
 
     // submit request
@@ -83,7 +76,7 @@ class Nametag extends React.Component {
       .then(res => {
         if (res instanceof Error) {
           // set loading false
-          this.setState({loading: false});
+          setLoading(false);
 
           // log error
           console.error(res.message);
@@ -92,58 +85,55 @@ class Nametag extends React.Component {
 
         // response was successful
         // update state
-        this.setState({
-          upvotes: res.upvotes,
-          downvotes: res.downvotes,
-          userVoteChoice: res.userVoteChoice,
-          userVoted: res.userVoted,
-          loading: false
-        });
+        setUpvotes(res.upvotes);
+        setDownvotes(res.downvotes);
+        setUserVoteChoice(res.userVoteChoice);
+        setUserVoted(res.userVoted);
+        setLoading(false);
       })
       // show and log errors
       .catch(error => {
         // set loading false
-        this.setState({loading: false});
+        setLoading(false);
 
         // log error
         console.error(error);
       });
   }
 
-  render() {
-    return (
-      <Container>
-        <Row className={`mb-3 p-2 border-start fs-8 ${this.state.createdByUser === true ? "border-3" : "border-1"}`}>
-          <Col xs={1} className="text-center">
-            <Button
-              className="cus-btn-xs cus-btn-success-hov"
-              variant={this.state.userVoteChoice === true ?
-                "success" : "outline-dark"}
-              onClick={this.doUpvote}
-              disabled={this.state.loading}
-            >
-              <FontAwesomeIcon icon={faChevronUp} />
-            </Button>
-            <br />
-            <span>{this.state.upvotes - this.state.downvotes}</span>
-            <br />
-            <Button
-              className="cus-btn-xs cus-btn-danger-hov"
-              variant={this.state.userVoteChoice === false ?
-                "danger" : "outline-dark"}
-              onClick={this.doDownvote}
-              disabled={this.state.loading}
-            >
-              <FontAwesomeIcon icon={faChevronDown} />
-            </Button>
-          </Col>
-          <Col xs={11} className="align-self-center">
-            <p className="mt-3">&nbsp;{this.state.value}</p>
-          </Col>
-        </Row>
-      </Container>
-    )
-  }
+
+  return (
+    <Container>
+      <Row className={`mb-3 p-2 border-start fs-8 ${createdByUser === true ? "border-3" : "border-1"}`}>
+        <Col xs={1} className="text-center">
+          <Button
+            className="cus-btn-xs cus-btn-success-hov"
+            variant={userVoteChoice === true ?
+              "success" : "outline-dark"}
+            onClick={doUpvote}
+            disabled={loading}
+          >
+            <FontAwesomeIcon icon={faChevronUp} />
+          </Button>
+          <br />
+          <span>{upvotes - downvotes}</span>
+          <br />
+          <Button
+            className="cus-btn-xs cus-btn-danger-hov"
+            variant={userVoteChoice === false ?
+              "danger" : "outline-dark"}
+            onClick={doDownvote}
+            disabled={loading}
+          >
+            <FontAwesomeIcon icon={faChevronDown} />
+          </Button>
+        </Col>
+        <Col xs={11} className="align-self-center">
+          <p className="mt-3">&nbsp;{value}</p>
+        </Col>
+      </Row>
+    </Container>
+  )
 }
 
 
