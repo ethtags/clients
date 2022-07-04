@@ -116,7 +116,7 @@ function Nametag(props) {
   return (
     <Container>
       <Row className={`mb-3 p-2 border-start ${createdByUser === true ? "border-3" : "border-1"}`}>
-        <Col xs={1} className="text-center">
+        <Col xs={2} sm={1} className="text-center">
           <Button
             className="cus-btn-xs cus-btn-success-hov"
             variant={userVoteChoice === true ?
@@ -139,14 +139,14 @@ function Nametag(props) {
             <FontAwesomeIcon icon={faChevronDown} />
           </Button>
         </Col>
-        <Col xs={9} className="align-self-center">
+        <Col xs={6} sm={9} className="align-self-center">
           <p className="mt-3">
-            &nbsp;{value}
+            {value}
           </p>
         </Col>
-        <Col xs={2} className="align-self-center">
-          <p className="mt-3">
-            {abbrDate(created)}
+        <Col xs={4} sm={2} className="align-self-center">
+          <p className="mt-3 mb-0 fs-7">
+            posted {abbrDate(created)}
           </p>
         </Col>
       </Row>
