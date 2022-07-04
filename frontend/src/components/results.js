@@ -35,6 +35,7 @@ function Results(props) {
             key={nametag.id}
             id={nametag.id}
             value={nametag.nametag} 
+            created={nametag.created}
             upvotes={nametag.votes.upvotes}
             downvotes={nametag.votes.downvotes}
             userVoted={nametag.votes.userVoted}

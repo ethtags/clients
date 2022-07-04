@@ -13,6 +13,7 @@ import '../css/nametag.css';
 function Nametag(props) {
   // state
   const [value] = useState(props.value);
+  const [created] = useState(props.created);
   const [upvotes, setUpvotes] = useState(props.upvotes);
   const [downvotes, setDownvotes] = useState(props.downvotes);
   const [userVoted, setUserVoted] = useState(props.userVoted);
@@ -106,10 +107,15 @@ function Nametag(props) {
       });
   }
 
+  const abbrDate = (isoformattedDate) => {
+    var date = new Date(isoformattedDate);
+    return date.toLocaleDateString();
+  }
+
 
   return (
     <Container>
-      <Row className={`mb-3 p-2 border-start fs-8 ${createdByUser === true ? "border-3" : "border-1"}`}>
+      <Row className={`mb-3 p-2 border-start ${createdByUser === true ? "border-3" : "border-1"}`}>
         <Col xs={1} className="text-center">
           <Button
             className="cus-btn-xs cus-btn-success-hov"
@@ -133,8 +139,15 @@ function Nametag(props) {
             <FontAwesomeIcon icon={faChevronDown} />
           </Button>
         </Col>
-        <Col xs={11} className="align-self-center">
-          <p className="mt-3">&nbsp;{value}</p>
+        <Col xs={9} className="align-self-center">
+          <p className="mt-3">
+            &nbsp;{value}
+          </p>
+        </Col>
+        <Col xs={2} className="align-self-center">
+          <p className="mt-3">
+            {abbrDate(created)}
+          </p>
         </Col>
       </Row>
     </Container>
