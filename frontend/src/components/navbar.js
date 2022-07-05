@@ -13,7 +13,7 @@ class ETNavbar extends React.Component {
       <Navbar bg="light">
         {/* Home & Tagline */}
         <Container className="justify-content-start">
-          <Navbar.Brand href="/">ETH Tags</Navbar.Brand>
+          <Navbar.Brand href="/">ETHTags</Navbar.Brand>
           <Navbar.Text>Crowdsourced Nametags</Navbar.Text>
         </Container>
 

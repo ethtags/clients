@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from "react";
+import { useLocation, useParams, useNavigate } from "react-router-dom";
 import Col from 'react-bootstrap/Col';
 import Container from 'react-bootstrap/Container';
 import Row from 'react-bootstrap/Row';
 import Results from './results';
 import SearchBar from './searchbar';
 import SuggestBar from './suggestbar';
-import { useLocation, useParams, useNavigate } from "react-router-dom";
 
 
 function SearchAndResults(props) {

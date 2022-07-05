@@ -20,7 +20,7 @@ function Results(props) {
       return (
         <Container>
           <p className="header mt-3 fs-4">Nametags will appear here.</p>
-          <p className="header mt-3 fs-4">Vote or suggest your own.</p>
+          <p className="header mt-3 fs-4">Vote or submit your own.</p>
         </Container>
       )
     }
