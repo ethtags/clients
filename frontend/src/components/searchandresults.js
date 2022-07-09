@@ -75,23 +75,33 @@ function SearchAndResults(props) {
       body: JSON.stringify(data)
     })
       .then(res => {
-        if (res.ok === true) return res.json();
-        else return Error(res.statusText);
-      })
-      .then(res => {
-        if (res instanceof Error) {
-          setSuggestBarLoading(false);
-          setSuggestBarError(res.message);
-          return null
-        }
-
         // response was successful
-        // update state
-        setSuggestBarLoading(false);
-        setSuggestBarError(null);
+        if (res.ok === true)
+          return res.json().then(data => {
+            // update state
+            setSuggestBarLoading(false);
+            setSuggestBarError(null);
 
-        // refresh the results list by reloading the page
-        navigateNewAddress(address);
+            // refresh the results list by reloading the page
+            navigateNewAddress(address);
+          });
+
+        // response was 400 bad request, show reason
+        else if (res.status === 400)
+          return res.json().then(data => {
+            var errors = "";
+            for (const value of Object.values(data)) {
+              errors += value + "\n";
+            }
+            setSuggestBarLoading(false);
+            setSuggestBarError(errors);
+          });
+
+        // response was unsuccessful for another status code
+        else {
+          setSuggestBarLoading(false);
+          setSuggestBarError(`${res.status} ${res.statusText}`);
+        }
       })
       // show and log errors
       .catch(error => {
