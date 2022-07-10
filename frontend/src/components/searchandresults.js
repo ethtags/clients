@@ -7,20 +7,22 @@ import Row from 'react-bootstrap/Row';
 import Results from './results';
 import SearchBar from './searchbar';
 import SuggestBar from './suggestbar';
+import { addrStatuses } from './utils';
 
 
 function SearchAndResults(props) {
-  // state
-  const [address, setAddress] = useState("");
-  const [nametags, setNametags] = useState([]);
-  const [suggestBarError, setSuggestBarError] = useState(null);
-  const [suggestBarLoading, setSuggestBarLoading] = useState(false);
-
   // constants
-  const baseUrl = process.env.REACT_APP_BACKEND_URL || "http://127.0.0.1:8000/";
   let { addressUrl } = useParams();
   let navigate = useNavigate();
   let routerLocation = useLocation();
+  const baseUrl = process.env.REACT_APP_BACKEND_URL || "http://127.0.0.1:8000/";
+
+  // state
+  const [address, setAddress] = useState("");
+  const [addrStatus, setAddrStatus] = useState(addrStatuses.IDLE);
+  const [nametags, setNametags] = useState([]);
+  const [suggestBarError, setSuggestBarError] = useState(null);
+  const [suggestBarLoading, setSuggestBarLoading] = useState(false);
 
   // effects
   useEffect(() => {
@@ -29,17 +31,61 @@ function SearchAndResults(props) {
     );
 
     const resolveAddress = async (address) => {
-      // not an ens, return address
-      if (!address.endsWith(".eth")) return address;
+      // normalize address
+      address = address.toLowerCase();
 
-      // get the address that the ens maps to
-      var result = await provider.resolveName(address);
-      return result;
+      // not an ens
+      if (!address.endsWith(".eth")) {
+        // address is valid
+        try {
+          var resolved = ethers.utils.getAddress(address.toLowerCase());
+          setAddrStatus(addrStatuses.ADDRESS_FOUND);
+          setAddress(resolved);
+          return resolved;
+        }
+        // address is invalid
+        catch (error) {
+          console.error(error);
+          setAddrStatus(addrStatuses.INVALID_ADDRESS);
+          setAddress(address);
+          throw new Error(error);
+        }
+      }
+
+      // resolve ens address
+      else {
+        // valid ens
+        try {
+          setAddrStatus(addrStatuses.FETCHING_ENS);
+          setAddress(address);
+          resolved = await provider.resolveName(address);
+
+          // ens name doesn't map to anything
+          if (resolved === null) {
+            throw new Error(`${address} does not resolve to an address.`);
+          }
+          // ens name found
+          else {
+            setAddrStatus(addrStatuses.ADDRESS_FOUND);
+            setAddress(resolved);
+            return resolved;
+          }
+        }
+        // invalid ens
+        catch (error) {
+          console.error(error);
+          setAddrStatus(addrStatuses.INVALID_ENS);
+          setAddress(address);
+          throw new Error(error);
+        }
+      }
     }
 
     const fetchNametags = async () => {
+      // return if address in url is empty
+      if (addressUrl === undefined) return
+
       var resolved = await resolveAddress(addressUrl);
-      setAddress(resolved);
 
       // prepare request
       var url = baseUrl + resolved + "/tags/";
@@ -79,6 +125,16 @@ function SearchAndResults(props) {
   }
 
   const navigateNewAddress = (address) => {
+    // remove leading/trailing whitespace from address
+    address = address.trim();
+
+    // return if address is empty
+    if (address === "") {
+      console.log("empty string given, not going to search");
+      return
+    }
+
+    // search address
     navigate(`/address/${address}`);
   }
 
@@ -150,6 +206,7 @@ function SearchAndResults(props) {
         <Results
           nametags={nametags} 
           address={address} 
+          addrStatus={addrStatus}
         />
       </Container>
 
@@ -171,5 +228,4 @@ function SearchAndResults(props) {
   )
 }
 
-
-export default SearchAndResults;
+export default SearchAndResults; 
