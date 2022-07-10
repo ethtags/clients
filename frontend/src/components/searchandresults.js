@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useLocation, useParams, useNavigate } from "react-router-dom";
+import { ethers } from "ethers";
 import Col from 'react-bootstrap/Col';
 import Container from 'react-bootstrap/Container';
 import Row from 'react-bootstrap/Row';
@@ -10,41 +11,65 @@ import SuggestBar from './suggestbar';
 
 function SearchAndResults(props) {
   // state
+  const [address, setAddress] = useState("");
   const [nametags, setNametags] = useState([]);
   const [suggestBarError, setSuggestBarError] = useState(null);
   const [suggestBarLoading, setSuggestBarLoading] = useState(false);
 
   // constants
   const baseUrl = process.env.REACT_APP_BACKEND_URL || "http://127.0.0.1:8000/";
-  let { address } = useParams();
+  let { addressUrl } = useParams();
   let navigate = useNavigate();
   let routerLocation = useLocation();
 
   // effects
-  useEffect(
-    () => {
+  useEffect(() => {
+    const provider = new ethers.providers.JsonRpcProvider(
+      process.env.REACT_APP_ETHERS_PROVIDER || "http://localhost:8545"
+    );
+
+    const resolveAddress = async (address) => {
+      // not an ens, return address
+      if (!address.endsWith(".eth")) return address;
+
+      // get the address that the ens maps to
+      var result = await provider.resolveName(address);
+      return result;
+    }
+
+    const fetchNametags = async () => {
+      var resolved = await resolveAddress(addressUrl);
+      setAddress(resolved);
+
       // prepare request
-      var url = baseUrl + address + "/tags/";
+      var url = baseUrl + resolved + "/tags/";
     
       // submit request
-      fetch(url, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        credentials: 'include',
-      })
-        .then(res => res.json())
-        .then(res => {
-          // success state
-          setNametags(res);
-        })
-        // log errors
-        .catch(error => {
-          console.error(error);
+      try { 
+        const resp = await fetch(url, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          credentials: 'include',
         });
-    },
-    [baseUrl, address, routerLocation.key]
+        try {
+          const result = await resp.json();
+          setNametags(result);
+        }
+        catch (error) {
+          console.error(error);
+        }
+      }
+      catch (error) {
+        console.error(error);
+      }
+    }
+
+    // get address if an ens name is given
+    fetchNametags();
+  },
+  [baseUrl, addressUrl, routerLocation.key]
   );
 
   // functions
