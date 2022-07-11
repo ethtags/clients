@@ -15,9 +15,9 @@ function Address(props) {
   const [showCopyTooltip, setShowCopyTooltip] = useState(false);
   const copyBtnRef = React.createRef();
 
-  const copyToClipboard = (value) => {
+  const copyToClipboard = () => {
     // do copy
-    navigator.clipboard.writeText(value);
+    navigator.clipboard.writeText(props.value);
 
     // show success tooltip then hide it
     setShowCopyTooltip(true);
@@ -31,8 +31,8 @@ function Address(props) {
     <Container>
       <Row>
         <Col>
-          <p className="header fs-4 fw-bold overflow-wrap-anywhere">
-            {props.value}
+          <p className="header fs-5 fw-bold overflow-wrap-anywhere">
+            {props.ensName ? props.ensName + " | " : ""}{props.value}
 
             {/* Copy button and tooltip */}
             <Button

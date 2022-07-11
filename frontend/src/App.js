@@ -23,7 +23,7 @@ const App = () => (
           element={<SearchAndResults />}
         />
         <Route
-          path="/address/:address"
+          path="/address/:addressUrl"
           element={<SearchAndResults />}
         />
         <Route
