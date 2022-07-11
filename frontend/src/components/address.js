@@ -31,8 +31,8 @@ function Address(props) {
     <Container>
       <Row>
         <Col>
-          <p className="header fs-4 fw-bold overflow-wrap-anywhere">
-            {props.value}
+          <p className="header fs-5 fw-bold overflow-wrap-anywhere">
+            {props.ensName ? props.ensName + " | " : ""}{props.value}
 
             {/* Copy button and tooltip */}
             <Button

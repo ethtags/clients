@@ -7,7 +7,7 @@ import Row from 'react-bootstrap/Row';
 import Results from './results';
 import SearchBar from './searchbar';
 import SuggestBar from './suggestbar';
-import { addrStatuses } from './utils';
+import { addrStatuses, ethProvider } from './utils';
 
 
 function SearchAndResults(props) {
@@ -20,16 +20,18 @@ function SearchAndResults(props) {
   // state
   const [address, setAddress] = useState("");
   const [addrStatus, setAddrStatus] = useState(addrStatuses.IDLE);
+  const [ensName, setEnsName] = useState("");
   const [nametags, setNametags] = useState([]);
   const [suggestBarError, setSuggestBarError] = useState(null);
   const [suggestBarLoading, setSuggestBarLoading] = useState(false);
 
   // effects
+  /*
+   * Parse the address from the URL.
+   * If the address is an ENS name, resolve it to an address.
+   * Fetch the nametags for the given address.
+   */
   useEffect(() => {
-    const provider = new ethers.providers.JsonRpcProvider(
-      process.env.REACT_APP_ETHERS_PROVIDER || "http://localhost:8545"
-    );
-
     const resolveAddress = async (address) => {
       // normalize address
       address = address.toLowerCase();
@@ -38,16 +40,16 @@ function SearchAndResults(props) {
       if (!address.endsWith(".eth")) {
         // address is valid
         try {
+          setAddrStatus(addrStatuses.FETCHING_ADDRESS);
           var resolved = ethers.utils.getAddress(address.toLowerCase());
-          setAddrStatus(addrStatuses.ADDRESS_FOUND);
           setAddress(resolved);
+          setAddrStatus(addrStatuses.ADDRESS_FOUND);
           return resolved;
         }
         // address is invalid
         catch (error) {
-          console.error(error);
-          setAddrStatus(addrStatuses.INVALID_ADDRESS);
           setAddress(address);
+          setAddrStatus(addrStatuses.INVALID_ADDRESS);
           throw new Error(error);
         }
       }
@@ -56,9 +58,9 @@ function SearchAndResults(props) {
       else {
         // valid ens
         try {
-          setAddrStatus(addrStatuses.FETCHING_ENS);
           setAddress(address);
-          resolved = await provider.resolveName(address);
+          setAddrStatus(addrStatuses.FETCHING_ENS);
+          resolved = await ethProvider.resolveName(address);
 
           // ens name doesn't map to anything
           if (resolved === null) {
@@ -66,16 +68,16 @@ function SearchAndResults(props) {
           }
           // ens name found
           else {
-            setAddrStatus(addrStatuses.ADDRESS_FOUND);
             setAddress(resolved);
+            setAddrStatus(addrStatuses.ENS_FOUND);
+            setEnsName(address);
             return resolved;
           }
         }
         // invalid ens
         catch (error) {
-          console.error(error);
-          setAddrStatus(addrStatuses.INVALID_ENS);
           setAddress(address);
+          setAddrStatus(addrStatuses.INVALID_ENS);
           throw new Error(error);
         }
       }
@@ -85,31 +87,23 @@ function SearchAndResults(props) {
       // return if address in url is empty
       if (addressUrl === undefined) return
 
+      // resolve the address given in the url
       var resolved = await resolveAddress(addressUrl);
 
       // prepare request
       var url = baseUrl + resolved + "/tags/";
     
       // submit request
-      try { 
-        const resp = await fetch(url, {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          credentials: 'include',
-        });
-        try {
-          const result = await resp.json();
-          setNametags(result);
-        }
-        catch (error) {
-          console.error(error);
-        }
-      }
-      catch (error) {
-        console.error(error);
-      }
+      const resp = await fetch(url, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        credentials: 'include',
+      });
+
+      const result = await resp.json();
+      setNametags(result);
     }
 
     // get address if an ens name is given
@@ -117,6 +111,20 @@ function SearchAndResults(props) {
   },
   [baseUrl, addressUrl, routerLocation.key]
   );
+
+
+  /* Look up an ENS name when a valid address is given. */
+  useEffect(() => {
+    (async () => {
+      // return if address hasn't been resolved yet
+      if (addrStatus !== addrStatuses.ADDRESS_FOUND) return
+
+      // find an ens given an address
+      var ensName = await ethProvider.lookupAddress(address);
+      setEnsName(ensName);
+    })()
+  }, [address, addrStatus]);
+
 
   // functions
   const closeSuggestToast = () => {
@@ -184,11 +192,11 @@ function SearchAndResults(props) {
           setSuggestBarError(`${res.status} ${res.statusText}`);
         }
       })
-      // show and log errors
+      // show errors
       .catch(error => {
-        console.error(error);
         setSuggestBarLoading(false);
         setSuggestBarError(error.message);
+        throw new Error(error);
       });
   }
 
@@ -206,6 +214,7 @@ function SearchAndResults(props) {
         <Results
           nametags={nametags} 
           address={address} 
+          ensName={ensName}
           addrStatus={addrStatus}
         />
       </Container>

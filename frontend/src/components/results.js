@@ -33,7 +33,7 @@ function Results(props) {
     else if (props.addrStatus === addrStatuses.INVALID_ADDRESS) {
       return (
         <Container>
-          <p className="header mt-3 fs-4">Given address is invalid <br/> {props.address}</p>
+          <p className="header mt-3 fs-4">Address is invalid <br/> {props.address}</p>
         </Container>
       )
     }
@@ -51,16 +51,22 @@ function Results(props) {
     else if (props.addrStatus === addrStatuses.INVALID_ENS) {
       return (
         <Container>
-          <p className="header mt-3 fs-4">Given ENS name is invalid <br/> {props.address}</p>
+          <p className="header mt-3 fs-4">{props.address} doesnt resolve to an address.</p>
         </Container>
       )
     }
 
     // show results
-    else if (props.addrStatus === addrStatuses.ADDRESS_FOUND) {
+    else if (
+      (props.addrStatus === addrStatuses.ADDRESS_FOUND) ||
+      (props.addrStatus === addrStatuses.ENS_FOUND) 
+    ) {
       return (
         <Container>
-          <Address value={props.address} />
+          <Address
+            value={props.address}
+            ensName={props.ensName}
+          />
           <Container className="vh-45 overflow-y-scroll overflow-x-hidden">
             {props.nametags.map(nametag => (
               <Nametag
@@ -81,7 +87,7 @@ function Results(props) {
             {
               props.nametags.length === 0 ? 
                 <>
-                  <p className="header mt-3 fs-4">Do us all a favor and suggest a nametag below</p>
+                  <p className="header mt-3 fs-4">No nametags yet, feel free to suggest one below!</p>
                   <p className="header mt-5 fs-6">...and don't be weird...</p>
                   <p className="header mt-5 fs-7">or else.... (ง'̀-'́)ง</p>
                 </>
