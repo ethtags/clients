@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import Button from 'react-bootstrap/Button';
 import Col from 'react-bootstrap/Col';
 import Container from 'react-bootstrap/Container';
@@ -13,7 +13,7 @@ import '../css/address.css';
 
 function Address(props) {
   const [showCopyTooltip, setShowCopyTooltip] = useState(false);
-  const copyBtnRef = React.createRef();
+  const copyBtnRef = useRef(null);
 
   const copyToClipboard = () => {
     // do copy
@@ -22,7 +22,7 @@ function Address(props) {
     // show success tooltip then hide it
     setShowCopyTooltip(true);
     setTimeout(
-      () => setShowCopyTooltip(false),
+      () => { setShowCopyTooltip(false) },
       1000
     );
   }
