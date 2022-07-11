@@ -89,7 +89,8 @@ function Results(props) {
                 <>
                   <p className="header mt-3 fs-4">No nametags yet, feel free to suggest one below!</p>
                   <p className="header mt-5 fs-6">...and don't be weird...</p>
-                  <p className="header mt-5 fs-7">or else.... (ง'̀-'́)ง</p>
+                  <p className="header mt-3 fs-7">or else.</p>
+                  <p className="header mt-0 fs-7">(ง'̀-'́)ง</p>
                 </>
               : 
                 <></>

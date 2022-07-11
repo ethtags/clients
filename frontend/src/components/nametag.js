@@ -112,6 +112,11 @@ function Nametag(props) {
     return date.toLocaleDateString();
   }
 
+  const abbrTime = (isoformattedDate) => {
+    var date = new Date(isoformattedDate);
+    return date.toLocaleTimeString();
+  }
+
 
   return (
     <Container>
@@ -146,7 +151,7 @@ function Nametag(props) {
         </Col>
         <Col xs={4} sm={2} className="align-self-center">
           <p className="mt-3 mb-0 fs-7">
-            posted {abbrDate(created)}
+            {abbrDate(created)} <br/> {abbrTime(created)}
           </p>
         </Col>
       </Row>
