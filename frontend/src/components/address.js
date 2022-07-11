@@ -15,9 +15,9 @@ function Address(props) {
   const [showCopyTooltip, setShowCopyTooltip] = useState(false);
   const copyBtnRef = React.createRef();
 
-  const copyToClipboard = (value) => {
+  const copyToClipboard = () => {
     // do copy
-    navigator.clipboard.writeText(value);
+    navigator.clipboard.writeText(props.value);
 
     // show success tooltip then hide it
     setShowCopyTooltip(true);
