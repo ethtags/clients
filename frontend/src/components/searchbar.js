@@ -28,7 +28,7 @@ function SearchBar(props) {
     <InputGroup size="lg">
       <FormControl 
         id="searchInput"
-        placeholder="Search for an address, e.g. 0x123...def"
+        placeholder="Search for an address or ENS name..."
         aria-label="Large"
         aria-describedby="inputGroup-sizing-sm"
         onKeyPress={onKeyPress}
