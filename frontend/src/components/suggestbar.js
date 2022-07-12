@@ -35,7 +35,7 @@ function SuggestBar(props) {
           >
             <Toast.Header>{props.error}</Toast.Header>
           </Toast>
-          <InputGroup size="lg">
+          <InputGroup size={window.innerWidth < 576 ? "sm" : "lg"}>
             <FormControl
               id="suggestInput"
               placeholder="Suggest a nametag"

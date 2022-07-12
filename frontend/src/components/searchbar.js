@@ -25,10 +25,13 @@ function SearchBar(props) {
   }
 
   return (
-    <InputGroup size="lg">
+    <InputGroup size={window.innerWidth < 576 ? "sm" : "lg"}>
       <FormControl 
         id="searchInput"
-        placeholder="Search for an address or ENS name..."
+        placeholder={
+            window.innerWidth < 416 ? "Address or ENS..." : 
+            "Search for an address or ENS..."
+        }
         aria-label="Large"
         aria-describedby="inputGroup-sizing-sm"
         onKeyPress={onKeyPress}
