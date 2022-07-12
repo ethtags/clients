@@ -119,11 +119,14 @@ function SearchAndResults(props) {
       // return if address hasn't been resolved yet
       if (addrStatus !== addrStatuses.ADDRESS_FOUND) return
 
+      // return if ens name has already been looked up
+      if (ensName !== "") return
+
       // find an ens given an address
-      var ensName = await ethProvider.lookupAddress(address);
-      setEnsName(ensName);
+      var result = await ethProvider.lookupAddress(address);
+      setEnsName(result);
     })()
-  }, [address, addrStatus]);
+  }, [address, addrStatus, ensName]);
 
 
   // functions
