@@ -14,3 +14,22 @@ export const addrStatuses = {
     "ADDRESS_FOUND": "ADDRESS_FOUND",
     "ENS_FOUND": "ENS_FOUND",
 }
+
+export const addScript = ({ src, id, onLoad }) => {
+  const existing = document.getElementById(id);
+  if (existing) {
+    return existing;
+  } else {
+    const script = document.createElement("script");
+    script.src = src;
+    script.id = id;
+    script.async = true;
+    script.onload = () => {
+      if (onLoad) {
+        onLoad();
+      }
+    };
+    document.head.appendChild(script);
+    return script;
+  }
+};
