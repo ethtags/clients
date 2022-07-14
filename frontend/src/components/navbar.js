@@ -1,4 +1,5 @@
 import React from "react";
+import { Link } from 'react-router-dom';
 import Container from 'react-bootstrap/Container';
 import Navbar from "react-bootstrap/Navbar";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -13,7 +14,7 @@ class ETNavbar extends React.Component {
       <Navbar bg="light">
         {/* Home & Tagline */}
         <Container className="justify-content-start">
-          <Navbar.Brand href="/">ETHTags</Navbar.Brand>
+          <Navbar.Brand as={Link} to="/">ETHTags</Navbar.Brand>
           <Navbar.Text>Crowdsourced Nametags</Navbar.Text>
         </Container>
 

@@ -19,7 +19,7 @@ const App = () => (
       <ETNavbar />
 
       {/* Routes and their elements */}
-      <Suspense fallback={<div>Loading...</div>}>
+      <Suspense fallback={<></>}>
       <Routes>
         <Route
           path="/"
