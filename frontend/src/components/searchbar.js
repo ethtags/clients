@@ -1,4 +1,5 @@
 import React from "react";
+import { useNavigate } from 'react-router-dom';
 import Button from 'react-bootstrap/Button'; 
 import FormControl from 'react-bootstrap/FormControl'; 
 import InputGroup from 'react-bootstrap/InputGroup';
@@ -6,15 +7,20 @@ import InputGroup from 'react-bootstrap/InputGroup';
 
 function SearchBar(props) {
 
+  let navigate = useNavigate();
+
   const handleSearch = () => {
     // get input
     var value = document.getElementById('searchInput').value;
 
+    // remove leading/trailing whitespace from address
+    value = value.trim();
+
     // return if empty
     if (value === undefined || value === null || value === "") return;
 
-    // call function
-    props.onSubmit(value);
+    // navigate to new address
+    navigate(`/address/${value}`);
   }
 
   const onKeyPress = (event) => {

@@ -1,3 +1,4 @@
+import { Suspense, lazy } from 'react';
 import { 
   BrowserRouter,
   Routes,
@@ -5,9 +6,10 @@ import {
 } from 'react-router-dom';
 import Container from 'react-bootstrap/Container';
 import ETNavbar from './components/navbar';
-import SearchAndResults from './components/searchandresults';
 import './App.css';
 
+const Home = lazy(() => import('./pages/home'));
+const SearchAndResults = lazy(() => import('./components/searchandresults'));
 
 const App = () => (
   <BrowserRouter>
@@ -17,10 +19,11 @@ const App = () => (
       <ETNavbar />
 
       {/* Routes and their elements */}
+      <Suspense fallback={<div>Loading...</div>}>
       <Routes>
         <Route
           path="/"
-          element={<SearchAndResults />}
+          element={<Home />}
         />
         <Route
           path="/address/:addressUrl"
@@ -31,6 +34,7 @@ const App = () => (
           element={<div>Not Found.</div>}
         />
       </Routes>
+      </Suspense>
     </Container>
   </BrowserRouter>
 );
