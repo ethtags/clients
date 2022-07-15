@@ -13,8 +13,8 @@ import { addrStatuses, ethProvider } from './utils';
 function SearchAndResults(props) {
   // constants
   let { addressUrl } = useParams();
-  let navigate = useNavigate();
   let routerLocation = useLocation();
+  let navigate = useNavigate();
   const baseUrl = process.env.REACT_APP_BACKEND_URL || "http://127.0.0.1:8000/";
 
   // state
@@ -135,20 +135,6 @@ function SearchAndResults(props) {
     setSuggestBarError(null);
   }
 
-  const navigateNewAddress = (address) => {
-    // remove leading/trailing whitespace from address
-    address = address.trim();
-
-    // return if address is empty
-    if (address === "") {
-      console.log("empty string given, not going to search");
-      return
-    }
-
-    // search address
-    navigate(`/address/${address}`);
-  }
-
   const submitNametag = (value) => {
     // prepare request
     var url = baseUrl + address + "/tags/";
@@ -175,7 +161,7 @@ function SearchAndResults(props) {
             setSuggestBarError(null);
 
             // refresh the results list by reloading the page
-            navigateNewAddress(address);
+            navigate(`/address/${address}`);
           });
 
         // response was 400 bad request, show reason
@@ -209,7 +195,7 @@ function SearchAndResults(props) {
 
       {/*search*/}
       <Container className="p-3">
-        <SearchBar onSubmit={navigateNewAddress}></SearchBar>
+        <SearchBar />
       </Container>
 
       {/*results*/}

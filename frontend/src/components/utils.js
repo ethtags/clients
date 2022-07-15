@@ -1,6 +1,5 @@
 import { ethers } from 'ethers';
 
-
 export const ethProvider = new ethers.providers.JsonRpcProvider(
       process.env.REACT_APP_ETHERS_PROVIDER || "http://localhost:8545"
     );
