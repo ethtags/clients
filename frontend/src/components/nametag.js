@@ -142,7 +142,7 @@ function Nametag(props) {
           </Button>
         </Col>
         <Col xs={9} sm={7} lg={9} className="align-self-center">
-          <p className="mt-3 fs-5 mb-0">
+          <p className="mt-3 fs-6 mb-0">
             {props.value}
           </p>
           {props.source ? <p className="mt-0 mb-0 fs-7">source: {props.source}</p> : ""}
