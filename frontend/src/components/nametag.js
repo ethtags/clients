@@ -12,13 +12,10 @@ import '../css/nametag.css';
 
 function Nametag(props) {
   // state
-  const [value] = useState(props.value);
-  const [created] = useState(props.created);
   const [upvotes, setUpvotes] = useState(props.upvotes);
   const [downvotes, setDownvotes] = useState(props.downvotes);
   const [userVoted, setUserVoted] = useState(props.userVoted);
   const [userVoteChoice, setUserVoteChoice] = useState(props.userVoteChoice);
-  const [createdByUser] = useState(props.createdByUser);
   const [loading, setLoading] = useState(false);
 
   // constants
@@ -119,9 +116,9 @@ function Nametag(props) {
 
 
   return (
-    <Container>
-      <Row className={`mb-3 p-2 border-start ${createdByUser === true ? "border-3" : "border-1"}`}>
-        <Col xs={3} sm={1} className="text-center">
+    <Container id={props.id}>
+      <Row className={`mb-3 p-2 border-start ${props.createdByUser === true ? "border-3" : "border-1"}`}>
+        <Col xs={3} sm={2} lg={1} className="text-center">
           <Button
             className="cus-btn-xs cus-btn-success-hov"
             variant={userVoteChoice === true ?
@@ -144,14 +141,15 @@ function Nametag(props) {
             <FontAwesomeIcon icon={faChevronDown} />
           </Button>
         </Col>
-        <Col xs={9} sm={9} className="align-self-center">
-          <p className="mt-3">
-            {value}
+        <Col xs={9} sm={7} lg={9} className="align-self-center">
+          <p className="mt-3 fs-5 mb-0">
+            {props.value}
           </p>
+          {props.source ? <p className="mt-0 mb-0 fs-7">source: {props.source}</p> : ""}
         </Col>
-        <Col xs={12} sm={2} className="align-self-center">
+        <Col xs={12} sm={2} lg={1} className="align-self-center">
           <p className="mt-3 mb-0 fs-7">
-            {abbrDate(created)} <br/> {abbrTime(created)}
+            {abbrDate(props.created)} <br/> {abbrTime(props.created)}
           </p>
         </Col>
       </Row>

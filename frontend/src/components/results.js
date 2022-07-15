@@ -79,6 +79,7 @@ function Results(props) {
                 userVoted={nametag.votes.userVoted}
                 userVoteChoice={nametag.votes.userVoteChoice}
                 createdByUser={nametag.createdByUser}
+                source={nametag.source}
                 address={props.address}
               />
             ))}
