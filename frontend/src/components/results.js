@@ -42,7 +42,7 @@ function Results(props) {
     else if (props.addrStatus === addrStatuses.FETCHING_ENS) {
       return (
         <Container>
-          <p className="header mt-3 fs-4">Fetching address of {props.address} ...</p>
+          <p className="header mt-3 fs-4">Resolving address of {props.address} ...</p>
         </Container>
       )
     }

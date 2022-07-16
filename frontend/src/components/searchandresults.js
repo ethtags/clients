@@ -209,19 +209,25 @@ function SearchAndResults(props) {
       </Container>
 
       {/*suggest*/}
-      <Container className="mt-4">
-        <Row className="justify-content-md-center">
-          <Col xs={12} lg={6}>
-            <SuggestBar
-              address={address}
-              error={suggestBarError}
-              loading={suggestBarLoading}
-              onSubmit={submitNametag}
-              onToastClose={closeSuggestToast}
-            />
-          </Col>
-        </Row>
-      </Container>
+      { (
+          addrStatus === addrStatuses.ADDRESS_FOUND ||
+          addrStatus === addrStatuses.ENS_FOUND
+        ) && 
+        <Container className="mt-4">
+          <Row className="justify-content-md-center">
+            <Col xs={12} lg={6}>
+              <SuggestBar
+                address={address}
+                error={suggestBarError}
+                loading={suggestBarLoading}
+                onSubmit={submitNametag}
+                onToastClose={closeSuggestToast}
+              />
+            </Col>
+          </Row>
+        </Container>
+      }
+
     </Container>
   )
 }
