@@ -20,6 +20,7 @@ function SearchAndResults(props) {
   // state
   const [address, setAddress] = useState("");
   const [addrStatus, setAddrStatus] = useState(addrStatuses.IDLE);
+  const [loadingTags, setLoadingTags] = useState(false);
   const [ensName, setEnsName] = useState("");
   const [nametags, setNametags] = useState([]);
   const [suggestBarError, setSuggestBarError] = useState(null);
@@ -32,6 +33,8 @@ function SearchAndResults(props) {
    * Fetch the nametags for the given address.
    */
   useEffect(() => {
+    const controller = new AbortController();
+
     const resolveAddress = async (address) => {
       // normalize address
       address = address.toLowerCase();
@@ -94,20 +97,30 @@ function SearchAndResults(props) {
       var url = baseUrl + resolved + "/tags/";
     
       // submit request
+      setLoadingTags(true);
       const resp = await fetch(url, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json'
         },
         credentials: 'include',
+        signal: controller.signal,
       });
 
       const result = await resp.json();
       setNametags(result);
+      setLoadingTags(false);
     }
 
     // get address if an ens name is given
     fetchNametags();
+
+    // cleanup function on unmount
+    return () => {
+      // abort any pending fetch request
+      controller.abort();
+      setLoadingTags(false);
+    }
   },
   [baseUrl, addressUrl, routerLocation.key]
   );
@@ -205,6 +218,7 @@ function SearchAndResults(props) {
           address={address} 
           ensName={ensName}
           addrStatus={addrStatus}
+          loadingTags={loadingTags}
         />
       </Container>
 
