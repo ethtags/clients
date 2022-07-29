@@ -19,14 +19,17 @@ function ETNavbar() {
 
       {/* Socials */}
       <Container className="justify-content-end">
-        <Navbar.Brand href="#">
+        <Navbar.Brand href="https://discord.gg/z4US5gWK" target="_blank">
           <FontAwesomeIcon icon={faDiscord} color="#5865f2" />
         </Navbar.Brand>
-        <Navbar.Brand href="#">
+        <Navbar.Brand href="https://t.me/ethtags" target="_blank">
           <FontAwesomeIcon icon={faTelegram} color="#24a1de" />
         </Navbar.Brand>
-        <Navbar.Brand href="#">
+        <Navbar.Brand href="https://twitter.com/ethtags" target="_blank">
           <FontAwesomeIcon icon={faTwitter} color="#1d9bf0" />
+        </Navbar.Brand>
+        <Navbar.Brand>
+          Like it? Bookmark it!
         </Navbar.Brand>
       </Container>
     </Navbar>

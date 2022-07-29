@@ -6,6 +6,7 @@ import {
 } from 'react-router-dom';
 import Container from 'react-bootstrap/Container';
 import ETNavbar from './components/navbar';
+import LoadingWidget from './components/loading';
 import './App.css';
 
 const Home = lazy(() => import('./pages/home'));
@@ -19,7 +20,7 @@ const App = () => (
       <ETNavbar />
 
       {/* Routes and their elements */}
-      <Suspense fallback={<></>}>
+      <Suspense fallback={<LoadingWidget />}>
       <Routes>
         <Route
           path="/"

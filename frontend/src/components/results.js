@@ -42,7 +42,7 @@ function Results(props) {
     else if (props.addrStatus === addrStatuses.FETCHING_ENS) {
       return (
         <Container>
-          <p className="header mt-3 fs-4">Fetching address of {props.address} ...</p>
+          <p className="header mt-3 fs-4">Resolving address of {props.address} ...</p>
         </Container>
       )
     }
@@ -51,7 +51,7 @@ function Results(props) {
     else if (props.addrStatus === addrStatuses.INVALID_ENS) {
       return (
         <Container>
-          <p className="header mt-3 fs-4">{props.address} doesnt resolve to an address.</p>
+          <p className="header mt-3 fs-4">{props.address} does not resolve to an address.</p>
         </Container>
       )
     }
@@ -86,7 +86,8 @@ function Results(props) {
 
             {/* if no nametags exist yet, show feedback */}
             {
-              props.nametags.length === 0 ? 
+              (props.loadingTags === false &&
+              props.nametags.length) === 0 ? 
                 <>
                   <p className="header mt-3 fs-4">No nametags yet, feel free to suggest one below!</p>
                   <p className="header mt-5 fs-6">...and don't be weird...</p>

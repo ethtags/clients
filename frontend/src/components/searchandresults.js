@@ -20,6 +20,7 @@ function SearchAndResults(props) {
   // state
   const [address, setAddress] = useState("");
   const [addrStatus, setAddrStatus] = useState(addrStatuses.IDLE);
+  const [loadingTags, setLoadingTags] = useState(false);
   const [ensName, setEnsName] = useState("");
   const [nametags, setNametags] = useState([]);
   const [suggestBarError, setSuggestBarError] = useState(null);
@@ -32,6 +33,8 @@ function SearchAndResults(props) {
    * Fetch the nametags for the given address.
    */
   useEffect(() => {
+    const controller = new AbortController();
+
     const resolveAddress = async (address) => {
       // normalize address
       address = address.toLowerCase();
@@ -40,6 +43,7 @@ function SearchAndResults(props) {
       if (!address.endsWith(".eth")) {
         // address is valid
         try {
+          setEnsName("");
           setAddrStatus(addrStatuses.FETCHING_ADDRESS);
           var resolved = ethers.utils.getAddress(address.toLowerCase());
           setAddress(resolved);
@@ -94,20 +98,30 @@ function SearchAndResults(props) {
       var url = baseUrl + resolved + "/tags/";
     
       // submit request
+      setLoadingTags(true);
       const resp = await fetch(url, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json'
         },
         credentials: 'include',
+        signal: controller.signal,
       });
 
       const result = await resp.json();
       setNametags(result);
+      setLoadingTags(false);
     }
 
     // get address if an ens name is given
     fetchNametags();
+
+    // cleanup function on unmount
+    return () => {
+      // abort any pending fetch request
+      controller.abort();
+      setLoadingTags(false);
+    }
   },
   [baseUrl, addressUrl, routerLocation.key]
   );
@@ -120,7 +134,11 @@ function SearchAndResults(props) {
       if (addrStatus !== addrStatuses.ADDRESS_FOUND) return
 
       // return if ens name has already been looked up
-      if (ensName !== "") return
+      if (ensName !== "" &&
+          ensName !== "Loading ENS...") return
+
+      // set ENS name to loading
+      setEnsName("Loading ENS...");
 
       // find an ens given an address
       var result = await ethProvider.lookupAddress(address);
@@ -205,23 +223,30 @@ function SearchAndResults(props) {
           address={address} 
           ensName={ensName}
           addrStatus={addrStatus}
+          loadingTags={loadingTags}
         />
       </Container>
 
       {/*suggest*/}
-      <Container className="mt-4">
-        <Row className="justify-content-md-center">
-          <Col xs={12} lg={6}>
-            <SuggestBar
-              address={address}
-              error={suggestBarError}
-              loading={suggestBarLoading}
-              onSubmit={submitNametag}
-              onToastClose={closeSuggestToast}
-            />
-          </Col>
-        </Row>
-      </Container>
+      { (
+          addrStatus === addrStatuses.ADDRESS_FOUND ||
+          addrStatus === addrStatuses.ENS_FOUND
+        ) && 
+        <Container className="mt-4">
+          <Row className="justify-content-md-center">
+            <Col xs={12} lg={6}>
+              <SuggestBar
+                address={address}
+                error={suggestBarError}
+                loading={suggestBarLoading}
+                onSubmit={submitNametag}
+                onToastClose={closeSuggestToast}
+              />
+            </Col>
+          </Row>
+        </Container>
+      }
+
     </Container>
   )
 }
