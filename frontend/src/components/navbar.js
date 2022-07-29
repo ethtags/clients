@@ -28,6 +28,9 @@ function ETNavbar() {
         <Navbar.Brand href="https://twitter.com/ethtags" target="_blank">
           <FontAwesomeIcon icon={faTwitter} color="#1d9bf0" />
         </Navbar.Brand>
+        <Navbar.Brand>
+          Like it? Bookmark it!
+        </Navbar.Brand>
       </Container>
     </Navbar>
   )
