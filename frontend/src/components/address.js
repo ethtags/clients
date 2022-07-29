@@ -32,7 +32,7 @@ function Address(props) {
       <Row>
         <Col>
           <p className="header fs-5 fw-bold overflow-wrap-anywhere">
-            {props.ensName ? props.ensName + " | " : ""}{props.value}
+            {props.ensName !== null ? props.ensName + " | " : "No ENS | "}{props.value}
 
             {/* Copy button and tooltip */}
             <Button

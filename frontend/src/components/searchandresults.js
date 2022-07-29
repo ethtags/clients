@@ -43,6 +43,7 @@ function SearchAndResults(props) {
       if (!address.endsWith(".eth")) {
         // address is valid
         try {
+          setEnsName("");
           setAddrStatus(addrStatuses.FETCHING_ADDRESS);
           var resolved = ethers.utils.getAddress(address.toLowerCase());
           setAddress(resolved);
@@ -133,7 +134,11 @@ function SearchAndResults(props) {
       if (addrStatus !== addrStatuses.ADDRESS_FOUND) return
 
       // return if ens name has already been looked up
-      if (ensName !== "") return
+      if (ensName !== "" &&
+          ensName !== "Loading ENS...") return
+
+      // set ENS name to loading
+      setEnsName("Loading ENS...");
 
       // find an ens given an address
       var result = await ethProvider.lookupAddress(address);
