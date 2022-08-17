@@ -23,18 +23,22 @@ function SearchAndResults(props) {
   const [loadingTags, setLoadingTags] = useState(false);
   const [ensName, setEnsName] = useState("");
   const [nametags, setNametags] = useState([]);
+  const [sourcesAreStale, setSourcesAreStale] = useState(false);
   const [suggestBarError, setSuggestBarError] = useState(null);
   const [suggestBarLoading, setSuggestBarLoading] = useState(false);
 
   // effects
   /*
+   * Fetch the nametags for the given address.
    * Parse the address from the URL.
    * If the address is an ENS name, resolve it to an address.
-   * Fetch the nametags for the given address.
    */
   useEffect(() => {
     const controller = new AbortController();
 
+    /*
+     * Async function that resolves an address or ens name.
+     */
     const resolveAddress = async (address) => {
       // normalize address
       address = address.toLowerCase();
@@ -87,6 +91,9 @@ function SearchAndResults(props) {
       }
     }
 
+    /*
+     * Async function that GETs nametags from backend.
+     */
     const fetchNametags = async () => {
       // return if address in url is empty
       if (addressUrl === undefined) return
@@ -95,7 +102,7 @@ function SearchAndResults(props) {
       var resolved = await resolveAddress(addressUrl);
 
       // prepare request
-      var url = baseUrl + resolved + "/tags/";
+      var url = baseUrl + resolved + "/";
     
       // submit request
       setLoadingTags(true);
@@ -107,10 +114,22 @@ function SearchAndResults(props) {
         credentials: 'include',
         signal: controller.signal,
       });
-
-      const result = await resp.json();
-      setNametags(result);
       setLoadingTags(false);
+
+      // TODO handle unexpected status codes
+      if (resp.status !== 200 && resp.status !== 404) {
+        console.error("handle error feedback");
+      }
+      
+      // handle 200 and 404
+      const result = await resp.json();
+      if (result.nametags === undefined) {
+        result.nametags = [];
+      }
+      setNametags(result.nametags);
+
+      // handle stale sources
+      setSourcesAreStale(result.sourcesAreStale);
     }
 
     // get address if an ens name is given
@@ -145,6 +164,29 @@ function SearchAndResults(props) {
       setEnsName(result);
     })()
   }, [address, addrStatus, ensName]);
+
+
+  /*
+   * Set a timer to auto-refrsh the page if sources are stale.
+   * The timer should clear when the component unmounts.
+   */
+  useEffect(() => {
+    // do nothing if sources are not stale
+    if (sourcesAreStale === false) return
+
+    // refresh the page after X seconds if sources are stale
+    const timeoutId = setTimeout(() => {
+      alert("refreshing page to see job results");
+      navigate(`/address/${address}`);
+    }, 10000);
+
+    // cleanup function on unmount
+    return () => {
+      // TODO fix bug with reloading twice even though sources are not stale
+      // clear setTimeout that may have been set
+      clearTimeout(timeoutId);
+    }
+  }, [address, navigate, sourcesAreStale])
 
 
   // functions
