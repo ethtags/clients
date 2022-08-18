@@ -2,6 +2,7 @@ import React from "react";
 import Container from 'react-bootstrap/Container';
 import Address from './address';
 import Nametag from './nametag';
+import StaleResultsToast from './staleresults';
 import { addrStatuses } from './utils';
 import '../css/results.css';
 
@@ -66,6 +67,9 @@ function Results(props) {
           <Address
             value={props.address}
             ensName={props.ensName}
+          />
+          <StaleResultsToast
+             isStale={true}
           />
           <Container className="vh-45 overflow-y-scroll overflow-x-hidden">
             {props.nametags.map(nametag => (
