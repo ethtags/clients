@@ -7,6 +7,7 @@ import Row from 'react-bootstrap/Row';
 import Results from './results';
 import SearchBar from './searchbar';
 import SuggestBar from './suggestbar';
+import { getAddress } from '../requests';
 import { addrStatuses, ethProvider } from './utils';
 
 
@@ -99,24 +100,14 @@ function SearchAndResults(props) {
       // resolve the address given in the url
       var resolved = await resolveAddress(urlInput);
 
-      // prepare request
-      var url = baseUrl + resolved + "/";
-    
-      // submit request
+      // fetch address data including nametags
       setLoadingTags(true);
-      const resp = await fetch(url, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        credentials: 'include',
-        signal: controller.signal,
-      });
+      const resp = await getAddress(resolved, controller);
       setLoadingTags(false);
 
       // TODO handle unexpected status codes
       if (resp.status !== 200 && resp.status !== 404) {
-        console.error("handle error feedback");
+        console.error("TODO: handle error feedback");
       }
       
       // handle 200 and 404
@@ -125,8 +116,6 @@ function SearchAndResults(props) {
         result.nametags = [];
       }
       setNametags(result.nametags);
-
-      // handle stale sources
       setSourcesAreStale(result.sourcesAreStale);
     }
 
@@ -135,12 +124,12 @@ function SearchAndResults(props) {
 
     // cleanup function on unmount
     return () => {
-      // abort any pending fetch request
+      // abort any pending requests
       controller.abort();
       setLoadingTags(false);
     }
   },
-  [baseUrl, urlInput, routerLocation.key]
+  [urlInput, routerLocation.key]
   );
 
 
@@ -162,25 +151,48 @@ function SearchAndResults(props) {
 
 
   /*
-   * Set a timer to auto-refrsh the page if sources are stale.
-   * The timer should clear when the component unmounts.
+   * Poll for fresh results if current sources are stale.
    */
   useEffect(() => {
     // do nothing if sources are not stale
     if (sourcesAreStale === false) return
 
-    // refresh the page after X seconds if sources are stale
-    const timeoutId = setTimeout(() => {
-      // TODO poll in the background until sources are no longer stale, then refresh
-      //navigate(`/address/${address}`);
+    /*
+     * GET address data from the backend.
+     * This is called continuously by an interval function
+     * until fresh sources are found, at which point the
+     * interval is cleared, sources are marked as fresh,
+     * and nametags are refreshed if there are new ones.
+     */
+    const controller = new AbortController();
+    const fetchNametags = async (intervalId) => {
+      const resp = await getAddress(address, controller);
+      const data = await resp.json(); 
+      if (data.sourcesAreStale === false) {
+        setSourcesAreStale(false);
+        clearInterval(intervalId);
+        
+        if (nametags.length !== data.nametags.length) {
+          setNametags(data.nametags);
+        }
+      }
+    }
+
+    /*
+     * Interval function that polls for new address data.
+     * Polls every 10 seconds.
+     */
+    const intervalId = setInterval(() => {
+      fetchNametags(this);
     }, 10000);
 
     // cleanup function on unmount
     return () => {
-      // clear setTimeout that may have been set
-      clearTimeout(timeoutId);
+      // clear interval function and pending requests
+      clearInterval(intervalId);
+      controller.abort();
     }
-  }, [address, navigate, sourcesAreStale])
+  }, [sourcesAreStale, address, nametags])
 
 
   // functions
