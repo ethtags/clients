@@ -27,7 +27,7 @@ const App = () => (
           element={<Home />}
         />
         <Route
-          path="/address/:addressUrl"
+          path="/address/:urlInput"
           element={<SearchAndResults />}
         />
         <Route

@@ -1,4 +1,5 @@
 import React from "react";
+import { useParams } from "react-router-dom";
 import Container from 'react-bootstrap/Container';
 import Address from './address';
 import Nametag from './nametag';
@@ -8,9 +9,11 @@ import '../css/results.css';
 
 
 function Results(props) {
+  // constants
+  let { urlInput } = useParams();
+
 
   function render() {
-
     // show instructions if user hasn't searched
     if (props.addrStatus === addrStatuses.IDLE) {
       return (
@@ -34,7 +37,7 @@ function Results(props) {
     else if (props.addrStatus === addrStatuses.INVALID_ADDRESS) {
       return (
         <Container>
-          <p className="header mt-3 fs-4">Address is invalid <br/> {props.address}</p>
+          <p className="header mt-3 fs-4">Address is invalid <br/> {urlInput}</p>
         </Container>
       )
     }
@@ -43,7 +46,7 @@ function Results(props) {
     else if (props.addrStatus === addrStatuses.FETCHING_ENS) {
       return (
         <Container>
-          <p className="header mt-3 fs-4">Resolving address of {props.address} ...</p>
+          <p className="header mt-3 fs-4">Resolving address of {urlInput} ...</p>
         </Container>
       )
     }
@@ -52,7 +55,7 @@ function Results(props) {
     else if (props.addrStatus === addrStatuses.INVALID_ENS) {
       return (
         <Container>
-          <p className="header mt-3 fs-4">{props.address} does not resolve to an address.</p>
+          <p className="header mt-3 fs-4">{urlInput} does not resolve to an address.</p>
         </Container>
       )
     }
@@ -69,7 +72,7 @@ function Results(props) {
             ensName={props.ensName}
           />
           <StaleResultsToast
-             isStale={true}
+             isStale={props.sourcesAreStale}
           />
           <Container className="vh-45 overflow-y-scroll overflow-x-hidden">
             {props.nametags.map(nametag => (

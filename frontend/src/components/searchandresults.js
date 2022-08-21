@@ -12,7 +12,7 @@ import { addrStatuses, ethProvider } from './utils';
 
 function SearchAndResults(props) {
   // constants
-  let { addressUrl } = useParams();
+  let { urlInput } = useParams();
   let routerLocation = useLocation();
   let navigate = useNavigate();
   const baseUrl = process.env.REACT_APP_BACKEND_URL || "http://127.0.0.1:8000/";
@@ -21,7 +21,7 @@ function SearchAndResults(props) {
   const [address, setAddress] = useState("");
   const [addrStatus, setAddrStatus] = useState(addrStatuses.IDLE);
   const [loadingTags, setLoadingTags] = useState(false);
-  const [ensName, setEnsName] = useState("");
+  const [ensName, setEnsName] = useState(null);
   const [nametags, setNametags] = useState([]);
   const [sourcesAreStale, setSourcesAreStale] = useState(false);
   const [suggestBarError, setSuggestBarError] = useState(null);
@@ -37,26 +37,25 @@ function SearchAndResults(props) {
     const controller = new AbortController();
 
     /*
-     * Async function that resolves an address or ens name.
+     * Async function that resolves an address or ens name to an address.
      */
-    const resolveAddress = async (address) => {
+    const resolveAddress = async (urlInput) => {
       // normalize address
-      address = address.toLowerCase();
+      urlInput = urlInput.toLowerCase();
 
       // not an ens
-      if (!address.endsWith(".eth")) {
+      if (!urlInput.endsWith(".eth")) {
         // address is valid
         try {
-          setEnsName("");
           setAddrStatus(addrStatuses.FETCHING_ADDRESS);
-          var resolved = ethers.utils.getAddress(address.toLowerCase());
+          var resolved = ethers.utils.getAddress(urlInput.toLowerCase());
           setAddress(resolved);
           setAddrStatus(addrStatuses.ADDRESS_FOUND);
           return resolved;
         }
         // address is invalid
         catch (error) {
-          setAddress(address);
+          setAddress(urlInput);
           setAddrStatus(addrStatuses.INVALID_ADDRESS);
           throw new Error(error);
         }
@@ -66,25 +65,24 @@ function SearchAndResults(props) {
       else {
         // valid ens
         try {
-          setAddress(address);
           setAddrStatus(addrStatuses.FETCHING_ENS);
-          resolved = await ethProvider.resolveName(address);
+          resolved = await ethProvider.resolveName(urlInput);
 
           // ens name doesn't map to anything
           if (resolved === null) {
-            throw new Error(`${address} does not resolve to an address.`);
+            throw new Error(`${urlInput} does not resolve to an address.`);
           }
-          // ens name found
+          // found address the ens name resolves to
           else {
             setAddress(resolved);
             setAddrStatus(addrStatuses.ENS_FOUND);
-            setEnsName(address);
+            setEnsName(urlInput);
             return resolved;
           }
         }
         // invalid ens
         catch (error) {
-          setAddress(address);
+          setAddress(urlInput);
           setAddrStatus(addrStatuses.INVALID_ENS);
           throw new Error(error);
         }
@@ -96,10 +94,10 @@ function SearchAndResults(props) {
      */
     const fetchNametags = async () => {
       // return if address in url is empty
-      if (addressUrl === undefined) return
+      if (urlInput === undefined) return
 
       // resolve the address given in the url
-      var resolved = await resolveAddress(addressUrl);
+      var resolved = await resolveAddress(urlInput);
 
       // prepare request
       var url = baseUrl + resolved + "/";
@@ -142,7 +140,7 @@ function SearchAndResults(props) {
       setLoadingTags(false);
     }
   },
-  [baseUrl, addressUrl, routerLocation.key]
+  [baseUrl, urlInput, routerLocation.key]
   );
 
 
@@ -152,18 +150,15 @@ function SearchAndResults(props) {
       // return if address hasn't been resolved yet
       if (addrStatus !== addrStatuses.ADDRESS_FOUND) return
 
-      // return if ens name has already been looked up
-      if (ensName !== "" &&
-          ensName !== "Loading ENS...") return
-
       // set ENS name to loading
-      setEnsName("Loading ENS...");
+      setEnsName("Loading");
 
       // find an ens given an address
       var result = await ethProvider.lookupAddress(address);
       setEnsName(result);
+      setAddrStatus(addrStatuses.ENS_FOUND);
     })()
-  }, [address, addrStatus, ensName]);
+  }, [address, addrStatus]);
 
 
   /*
@@ -176,13 +171,12 @@ function SearchAndResults(props) {
 
     // refresh the page after X seconds if sources are stale
     const timeoutId = setTimeout(() => {
-      alert("refreshing page to see job results");
-      navigate(`/address/${address}`);
+      // TODO poll in the background until sources are no longer stale, then refresh
+      //navigate(`/address/${address}`);
     }, 10000);
 
     // cleanup function on unmount
     return () => {
-      // TODO fix bug with reloading twice even though sources are not stale
       // clear setTimeout that may have been set
       clearTimeout(timeoutId);
     }
@@ -266,6 +260,7 @@ function SearchAndResults(props) {
           ensName={ensName}
           addrStatus={addrStatus}
           loadingTags={loadingTags}
+          sourcesAreStale={sourcesAreStale}
         />
       </Container>
 
