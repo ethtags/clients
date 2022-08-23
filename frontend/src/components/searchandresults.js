@@ -119,7 +119,11 @@ function SearchAndResults(props) {
       setSourcesAreStale(result.sourcesAreStale);
     }
 
-    // get address if an ens name is given
+    // clear nametags so screen does not glitch
+    setNametags([]);
+    setAddrStatus(addrStatuses.IDLE);
+
+    // search for the given address
     fetchNametags();
 
     // cleanup function on unmount
