@@ -7,12 +7,13 @@ import Row from 'react-bootstrap/Row';
 import Results from './results';
 import SearchBar from './searchbar';
 import SuggestBar from './suggestbar';
+import { getAddress } from '../requests';
 import { addrStatuses, ethProvider } from './utils';
 
 
 function SearchAndResults(props) {
   // constants
-  let { addressUrl } = useParams();
+  let { urlInput } = useParams();
   let routerLocation = useLocation();
   let navigate = useNavigate();
   const baseUrl = process.env.REACT_APP_BACKEND_URL || "http://127.0.0.1:8000/";
@@ -21,38 +22,41 @@ function SearchAndResults(props) {
   const [address, setAddress] = useState("");
   const [addrStatus, setAddrStatus] = useState(addrStatuses.IDLE);
   const [loadingTags, setLoadingTags] = useState(false);
-  const [ensName, setEnsName] = useState("");
+  const [ensName, setEnsName] = useState(null);
   const [nametags, setNametags] = useState([]);
+  const [sourcesAreStale, setSourcesAreStale] = useState(false);
   const [suggestBarError, setSuggestBarError] = useState(null);
   const [suggestBarLoading, setSuggestBarLoading] = useState(false);
 
   // effects
   /*
+   * Fetch the nametags for the given address.
    * Parse the address from the URL.
    * If the address is an ENS name, resolve it to an address.
-   * Fetch the nametags for the given address.
    */
   useEffect(() => {
     const controller = new AbortController();
 
-    const resolveAddress = async (address) => {
+    /*
+     * Async function that resolves an address or ens name to an address.
+     */
+    const resolveAddress = async (urlInput) => {
       // normalize address
-      address = address.toLowerCase();
+      urlInput = urlInput.toLowerCase();
 
       // not an ens
-      if (!address.endsWith(".eth")) {
+      if (!urlInput.endsWith(".eth")) {
         // address is valid
         try {
-          setEnsName("");
           setAddrStatus(addrStatuses.FETCHING_ADDRESS);
-          var resolved = ethers.utils.getAddress(address.toLowerCase());
+          var resolved = ethers.utils.getAddress(urlInput.toLowerCase());
           setAddress(resolved);
           setAddrStatus(addrStatuses.ADDRESS_FOUND);
           return resolved;
         }
         // address is invalid
         catch (error) {
-          setAddress(address);
+          setAddress(urlInput);
           setAddrStatus(addrStatuses.INVALID_ADDRESS);
           throw new Error(error);
         }
@@ -62,68 +66,74 @@ function SearchAndResults(props) {
       else {
         // valid ens
         try {
-          setAddress(address);
           setAddrStatus(addrStatuses.FETCHING_ENS);
-          resolved = await ethProvider.resolveName(address);
+          resolved = await ethProvider.resolveName(urlInput);
 
           // ens name doesn't map to anything
           if (resolved === null) {
-            throw new Error(`${address} does not resolve to an address.`);
+            throw new Error(`${urlInput} does not resolve to an address.`);
           }
-          // ens name found
+          // found address the ens name resolves to
           else {
             setAddress(resolved);
             setAddrStatus(addrStatuses.ENS_FOUND);
-            setEnsName(address);
+            setEnsName(urlInput);
             return resolved;
           }
         }
         // invalid ens
         catch (error) {
-          setAddress(address);
+          setAddress(urlInput);
           setAddrStatus(addrStatuses.INVALID_ENS);
           throw new Error(error);
         }
       }
     }
 
+    /*
+     * Async function that GETs nametags from backend.
+     */
     const fetchNametags = async () => {
       // return if address in url is empty
-      if (addressUrl === undefined) return
+      if (urlInput === undefined) return
 
       // resolve the address given in the url
-      var resolved = await resolveAddress(addressUrl);
+      var resolved = await resolveAddress(urlInput);
 
-      // prepare request
-      var url = baseUrl + resolved + "/tags/";
-    
-      // submit request
+      // fetch address data including nametags
       setLoadingTags(true);
-      const resp = await fetch(url, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        credentials: 'include',
-        signal: controller.signal,
-      });
-
-      const result = await resp.json();
-      setNametags(result);
+      const resp = await getAddress(resolved, controller);
       setLoadingTags(false);
+
+      // TODO handle unexpected status codes
+      if (resp.status !== 200 && resp.status !== 404) {
+        console.error("TODO: handle error feedback");
+      }
+      
+      // handle 200 and 404
+      const result = await resp.json();
+      if (result.nametags === undefined) {
+        result.nametags = [];
+      }
+      setNametags(result.nametags);
+      setSourcesAreStale(result.sourcesAreStale);
     }
 
-    // get address if an ens name is given
+    // clear nametags so screen does not glitch
+    setNametags([]);
+    setAddrStatus(addrStatuses.IDLE);
+
+    // search for the given address
     fetchNametags();
 
     // cleanup function on unmount
     return () => {
-      // abort any pending fetch request
+      // abort any pending requests
       controller.abort();
       setLoadingTags(false);
     }
   },
-  [baseUrl, addressUrl, routerLocation.key]
+  [urlInput, routerLocation.key]
   );
 
 
@@ -133,18 +143,60 @@ function SearchAndResults(props) {
       // return if address hasn't been resolved yet
       if (addrStatus !== addrStatuses.ADDRESS_FOUND) return
 
-      // return if ens name has already been looked up
-      if (ensName !== "" &&
-          ensName !== "Loading ENS...") return
-
       // set ENS name to loading
-      setEnsName("Loading ENS...");
+      setEnsName("Loading");
 
       // find an ens given an address
       var result = await ethProvider.lookupAddress(address);
       setEnsName(result);
+      setAddrStatus(addrStatuses.ENS_FOUND);
     })()
-  }, [address, addrStatus, ensName]);
+  }, [address, addrStatus]);
+
+
+  /*
+   * Poll for fresh results if current sources are stale.
+   */
+  useEffect(() => {
+    // do nothing if sources are not stale
+    if (sourcesAreStale === false) return
+
+    /*
+     * GET address data from the backend.
+     * This is called continuously by an interval function
+     * until fresh sources are found, at which point the
+     * interval is cleared, sources are marked as fresh,
+     * and nametags are refreshed if there are new ones.
+     */
+    const controller = new AbortController();
+    const fetchNametags = async (intervalId) => {
+      const resp = await getAddress(address, controller);
+      const data = await resp.json(); 
+      if (data.sourcesAreStale === false) {
+        setSourcesAreStale(false);
+        clearInterval(intervalId);
+        
+        if (nametags.length !== data.nametags.length) {
+          setNametags(data.nametags);
+        }
+      }
+    }
+
+    /*
+     * Interval function that polls for new address data.
+     * Polls every 10 seconds.
+     */
+    const intervalId = setInterval(() => {
+      fetchNametags(this);
+    }, 10000);
+
+    // cleanup function on unmount
+    return () => {
+      // clear interval function and pending requests
+      clearInterval(intervalId);
+      controller.abort();
+    }
+  }, [sourcesAreStale, address, nametags])
 
 
   // functions
@@ -224,6 +276,7 @@ function SearchAndResults(props) {
           ensName={ensName}
           addrStatus={addrStatus}
           loadingTags={loadingTags}
+          sourcesAreStale={sourcesAreStale}
         />
       </Container>
 

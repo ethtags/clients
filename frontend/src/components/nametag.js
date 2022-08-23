@@ -92,6 +92,8 @@ function Nametag(props) {
         setLoading(false);
 
         // refresh page to show most recent results
+        // TODO refactor this so that it only fetches nametags
+        // without refreshing the page
         navigate(`/address/${props.address}`);
       })
       // show and log errors
@@ -112,6 +114,25 @@ function Nametag(props) {
   const abbrTime = (isoformattedDate) => {
     var date = new Date(isoformattedDate);
     return date.toLocaleTimeString();
+  }
+
+  /*
+   * Return a URL that links to the given
+   * source and address.
+   */
+  const getSourceURL = (source, address) => {
+    if (source === "etherscan") {
+      return `https://etherscan.io/address/${address}`
+    }
+    else if (source === "dune") {
+      return `https://dune.com/labels/ethereum/${address}`
+    }
+    else if (source === "opensea") {
+      return `https://opensea.io/${address}`
+    }
+    else {
+      throw new Error("Unknown source ", source);
+    }
   }
 
 
@@ -145,7 +166,7 @@ function Nametag(props) {
           <p className="mt-3 fs-6 mb-0">
             {props.value}
           </p>
-          {props.source ? <p className="mt-0 mb-0 fs-7">source: {props.source}</p> : ""}
+          {props.source ? <p className="mt-0 mb-0 fs-7"><a href={getSourceURL(props.source, props.address)} target="_blank" rel="noreferrer">More on {props.source.toUpperCase()}</a></p> : ""}
         </Col>
         <Col xs={12} sm={2} lg={1} className="align-self-center">
           <p className="mt-3 mb-0 fs-7">
