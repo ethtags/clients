@@ -13,7 +13,8 @@ function StaleResultsToast(props) {
    * new address is searched.
    */
   useEffect(() => {
-    setShow(true);
+    if (props.isStale === null) setShow(false);
+    else setShow(true);
   }, [props.isStale])
 
 

@@ -24,7 +24,7 @@ function SearchAndResults(props) {
   const [loadingTags, setLoadingTags] = useState(false);
   const [ensName, setEnsName] = useState(null);
   const [nametags, setNametags] = useState([]);
-  const [sourcesAreStale, setSourcesAreStale] = useState(false);
+  const [sourcesAreStale, setSourcesAreStale] = useState(null);
   const [suggestBarError, setSuggestBarError] = useState(null);
   const [suggestBarLoading, setSuggestBarLoading] = useState(false);
 
