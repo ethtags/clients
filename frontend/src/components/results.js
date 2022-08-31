@@ -88,6 +88,7 @@ function Results(props) {
                 createdByUser={nametag.createdByUser}
                 source={nametag.source}
                 address={props.address}
+                ensName={props.ensName}
               />
             ))}
 
