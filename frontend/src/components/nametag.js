@@ -120,18 +120,21 @@ function Nametag(props) {
    * Return a URL that links to the given
    * source and address.
    */
-  const getSourceURL = (source, address) => {
+  const getSourceURL = (source, address, ensName) => {
     if (source === "etherscan") {
       return `https://etherscan.io/address/${address}`
     }
     else if (source === "dune") {
       return `https://dune.com/labels/ethereum/${address}`
     }
+    else if (source === "ethleaderboard") {
+      return `https://ethleaderboard.xyz/?q=${ensName}`
+    }
     else if (source === "opensea") {
       return `https://opensea.io/${address}`
     }
     else {
-      throw new Error("Unknown source ", source);
+      throw new Error(`Unexpected source returned by backend, don't know how to handle source: ${source}`);
     }
   }
 
@@ -166,7 +169,7 @@ function Nametag(props) {
           <p className="mt-3 fs-6 mb-0">
             {props.value}
           </p>
-          {props.source ? <p className="mt-0 mb-0 fs-7"><a href={getSourceURL(props.source, props.address)} target="_blank" rel="noreferrer">More on {props.source.toUpperCase()}</a></p> : ""}
+          {props.source ? <p className="mt-0 mb-0 fs-7"><a href={getSourceURL(props.source, props.address, props.ensName)} target="_blank" rel="noreferrer">More on {props.source.toUpperCase()}</a></p> : ""}
         </Col>
         <Col xs={12} sm={2} lg={1} className="align-self-center">
           <p className="mt-3 mb-0 fs-7">
